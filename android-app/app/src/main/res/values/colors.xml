@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="yf_bg_global">#0A0A0A</color>
+    <color name="yf_bg_box">#111111</color>
+    <color name="yf_bg_error">#1A0810</color>
+
+    <color name="yf_stress_low_main">#00E87A</color>
+    <color name="yf_stress_low_tint">#1A00E87A</color>
+    <color name="yf_stress_low_border">#6600E87A</color>
+
+    <color name="yf_stress_medium_main">#FF9500</color>
+    <color name="yf_stress_medium_tint">#1AFF9500</color>
+    <color name="yf_stress_medium_border">#66FF9500</color>
+
+    <color name="yf_stress_high_main">#FF2244</color>
+    <color name="yf_stress_high_tint">#1AFF2244</color>
+    <color name="yf_stress_high_border">#66FF2244</color>
+
+    <color name="yf_brand_primary">#FF6600</color>
+    <color name="yf_brand_pressed">#FF8800</color>
+    <color name="yf_brand_border_subtle">#66FF6600</color>
+    <color name="yf_error_alert">#FF2244</color>
+    <color name="yf_error_text">#FF6680</color>
+
+    <color name="yf_text_primary">#C0C0C0</color>
+    <color name="yf_text_secondary">#5A5A5A</color>
+    <color name="yf_text_muted">#4A4A4A</color>
+    <color name="yf_text_ghost_hover">#C0C0C0</color>
+    <color name="yf_text_on_brand">#0A0A0A</color>
+
+    <color name="yf_border_general">#555555</color>
+    <color name="yf_divider">#484848</color>
+    <color name="yf_button_disabled_bg">#1E1E1E</color>
+    <color name="yf_button_disabled_text">#3A3A3A</color>
+
+    <color name="yf_scrollbar_track">#111111</color>
+    <color name="yf_scrollbar_thumb">#2A2A2A</color>
+    <color name="yf_scrollbar_thumb_hover">#8A8A8A</color>
+
+    <color name="yf_accent_bar_gray">#8A8A8A</color>
+    <color name="yf_accent_bar_orange">#FF6600</color>
+</resources>

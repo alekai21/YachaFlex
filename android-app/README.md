@@ -1,141 +1,193 @@
-# YachaFlex - Android Health Connect App
+# Yacha Flex Android Forwarder
 
-App Android companion que lee datos biométricos de Health Connect y los envía al backend YachaFlex.
+Native Android app that:
+1. Accepts an ingest endpoint from QR or deep link.
+2. Reads heart-rate samples from Health Connect (last 1 hour).
+3. Sends the payload as JSON with `POST` using OkHttp.
 
-## Setup
+The previous README was for a different implementation (Retrofit + JWT + HRV). This file documents the current code in this folder.
 
-### Dependencias (build.gradle :app)
-```gradle
-implementation "androidx.health.connect:connect-client:1.1.0-alpha07"
-implementation "com.squareup.retrofit2:retrofit:2.11.0"
-implementation "com.squareup.retrofit2:converter-gson:2.11.0"
+## Quick start (install + run)
+
+Install these first:
+
+1. Android Studio (latest stable).
+2. Android SDK Platform `36` (SDK Manager).
+3. Android SDK Build-Tools and Platform-Tools (SDK Manager).
+4. JDK `17+` (or keep the JDK path configured in `gradle.properties`).
+5. On device/emulator: Health Connect app/provider (`com.google.android.apps.healthdata`) and camera support.
+
+Run the app:
+
+1. Connect a device or start an emulator.
+2. From `android-app` run:
+
+```powershell
+.\gradlew.bat :app:installDebug
 ```
 
-### Permisos (AndroidManifest.xml)
-```xml
-<uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
-<uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY"/>
-<uses-permission android:name="android.permission.INTERNET"/>
+3. Launch `Yacha Flex Forwarder` on the device.
 
-<activity-alias
-    android:name="ViewPermissionUsageActivity"
-    android:exported="true"
-    android:targetActivity=".MainActivity"
-    android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
-    <intent-filter>
-        <action android:name="android.intent.action.VIEW_PERMISSION_USAGE"/>
-        <category android:name="android.intent.category.HEALTH_PERMISSIONS"/>
-    </intent-filter>
-</activity-alias>
+## Current behavior
+
+- Scan flow:
+  - Tap `Scan QR`.
+  - CameraX + ML Kit reads a QR code.
+  - QR content is parsed as endpoint or deep link.
+- Deep-link flow:
+  - `yachaflex://connect?...`
+  - `https://yachaflex.link/connect?...`
+  - Opening one of these links launches `MainActivity`.
+- Health flow:
+  - Requests `READ_HEART_RATE` permission from Health Connect.
+  - Reads `HeartRateRecord` samples for the last hour.
+  - Builds summary data in UI (count, min, max, average, last samples).
+- Send flow:
+  - Posts JSON to selected endpoint.
+  - On HTTP 2xx: clears session and shows `Sent successfully.`
+  - On non-2xx/network error: keeps state and shows `Send failed.`
+
+## Supported incoming formats
+
+Any plain text URL works. Deep links are also supported.
+
+### Custom scheme
+
+```text
+yachaflex://connect?endpoint=https%3A%2F%2Fexample.com%2Fingest
 ```
 
-## Código clave
+### HTTPS app link
 
-### HealthConnectManager.kt
-```kotlin
-import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
-import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.time.TimeRangeFilter
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-
-class HealthConnectManager(private val context: Context) {
-    private val client = HealthConnectClient.getOrCreate(context)
-
-    val permissions = setOf(
-        HealthPermission.getReadPermission(HeartRateRecord::class),
-        HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class),
-    )
-
-    suspend fun readBiometrics(): BiometricsData {
-        val end = Instant.now()
-        val start = end.minus(1, ChronoUnit.HOURS)
-        val timeFilter = TimeRangeFilter.between(start, end)
-
-        // Heart rate
-        val hrRecords = client.readRecords(
-            ReadRecordsRequest(HeartRateRecord::class, timeFilter)
-        ).records
-        val avgHr = hrRecords.flatMap { it.samples }.map { it.beatsPerMinute.toDouble() }
-            .takeIf { it.isNotEmpty() }?.average()
-
-        // HRV
-        val hrvRecords = client.readRecords(
-            ReadRecordsRequest(HeartRateVariabilityRmssdRecord::class, timeFilter)
-        ).records
-        val avgHrv = hrvRecords.map { it.heartRateVariabilityMillis }
-            .takeIf { it.isNotEmpty() }?.average()
-
-        return BiometricsData(heartRate = avgHr, hrv = avgHrv, activity = null)
-    }
-}
-
-data class BiometricsData(
-    val heartRate: Double?,
-    val hrv: Double?,
-    val activity: Double?
-)
+```text
+https://yachaflex.link/connect?endpoint=https%3A%2F%2Fexample.com%2Fingest
 ```
 
-### ApiService.kt
-```kotlin
-import retrofit2.http.Body
-import retrofit2.http.Header
-import retrofit2.http.POST
+If `endpoint` query param is missing, the raw incoming string is used as the target URL.
 
-interface ApiService {
-    @POST("biometrics")
-    suspend fun sendBiometrics(
-        @Header("Authorization") token: String,
-        @Body data: BiometricsData
-    ): BiometricsResponse
-}
+## JSON payload sent by the app
 
-data class BiometricsResponse(
-    val stress_score: Double,
-    val stress_level: String,
-    val record_id: Int,
-    val message: String
-)
-```
-
-### MainActivity.kt (fragmento)
-```kotlin
-// URL del backend (ngrok o IP local)
-private val BACKEND_URL = "https://TU-NGROK-URL.ngrok.io/"
-private val JWT_TOKEN = "Bearer TU_TOKEN_JWT"  // guardar en SharedPreferences
-
-private fun sendBiometrics() {
-    lifecycleScope.launch {
-        try {
-            val data = healthConnectManager.readBiometrics()
-            val response = apiService.sendBiometrics(JWT_TOKEN, data)
-            Log.d("YachaFlex", "Stress updated: ${response.stress_level}")
-        } catch (e: Exception) {
-            Log.e("YachaFlex", "Error: ${e.message}")
-        }
-    }
+```json
+{
+  "window_start": "2026-02-27T15:20:10.123Z",
+  "window_end": "2026-02-27T16:20:10.123Z",
+  "heart_rate": [
+    { "time": "2026-02-27T16:19:30.000Z", "bpm": 74.0 },
+    { "time": "2026-02-27T16:18:45.000Z", "bpm": 72.0 }
+  ]
 }
 ```
 
-## Flujo de uso
+No auth header is added in this implementation.
 
-1. Usuario se registra/loguea en la **web** (guarda el JWT)
-2. Usuario abre la **app Android** e ingresa el JWT (o la app redirige a login web)
-3. La app lee HR y HRV de Health Connect cada **5 minutos**
-4. POST a `/biometrics` → el backend recalcula el estrés con datos biométricos
-5. El frontend web muestra los datos actualizados en tiempo real
+## Tech stack and versions
 
-## Variables de entorno en la app
+- Android Gradle Plugin: `9.1.0-rc01` (in `settings.gradle`)
+- Gradle wrapper: `9.3.1`
+- Kotlin Android plugin declared: `2.2.10`
+- `compileSdk`: `36`
+- `targetSdk`: `34`
+- `minSdk`: `26`
+- Java compatibility: `17`
+- Main libraries:
+  - `androidx.health.connect:connect-client:1.2.0-alpha02`
+  - CameraX `1.3.4` (`camera-core`, `camera-camera2`, `camera-lifecycle`, `camera-view`)
+  - `com.google.mlkit:barcode-scanning:17.2.0`
+  - `com.squareup.okhttp3:okhttp:4.12.0`
 
-Crear `local.properties`:
+## Permissions and manifest hooks
+
+- Runtime permissions:
+  - `android.permission.CAMERA`
+  - `android.permission.health.READ_HEART_RATE`
+- Normal permission:
+  - `android.permission.INTERNET`
+- Health Connect integration:
+  - `PermissionsRationaleActivity` handles rationale intent.
+  - `OnboardingActivity` handles onboarding intent.
+  - Aliases are registered for permission usage and Android U+ onboarding action.
+
+## Build and run
+
+### Requirements
+
+- Android Studio with modern SDK/AGP support.
+- Android SDK for `compileSdk 36`.
+- JDK available for Gradle.
+
+`gradle.properties` currently contains:
+
+```properties
+org.gradle.java.home=C:\\Java\\jdk-25.0.2
 ```
-BACKEND_URL=https://TU-NGROK-URL.ngrok.io/
+
+If your machine does not have that exact path, update or remove this line.
+
+### Build debug APK
+
+Windows:
+
+```powershell
+.\gradlew.bat :app:assembleDebug
 ```
 
-O hardcodear en `BuildConfig` via `build.gradle`:
-```gradle
-buildConfigField "String", "BACKEND_URL", '"https://TU-NGROK-URL.ngrok.io/"'
+macOS/Linux:
+
+```bash
+./gradlew :app:assembleDebug
 ```
+
+Output APK:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+## Quick test
+
+1. Install Health Connect provider (`com.google.android.apps.healthdata`) if required on your device.
+2. Launch app, scan a QR containing an endpoint or open a deep link.
+3. Grant Health Connect heart-rate permission when prompted.
+4. Tap `Send`.
+
+You can trigger a deep link by ADB:
+
+```bash
+adb shell am start -a android.intent.action.VIEW -d "yachaflex://connect?endpoint=https%3A%2F%2Fwebhook.site%2Fyour-id"
+```
+
+## Project structure
+
+```text
+android-app/
+  app/src/main/java/com/example/yachaflex/
+    MainActivity.kt
+    QrScannerActivity.kt
+    OnboardingActivity.kt
+    PermissionsRationaleActivity.kt
+    SessionViewModel.kt
+  app/src/main/res/
+    layout/activity_main.xml
+    layout/activity_qr_scanner.xml
+    drawable/*
+    values/{colors,styles,themes}.xml
+  app/src/main/AndroidManifest.xml
+  app/build.gradle
+  settings.gradle
+```
+
+## Important integration note
+
+This Android app currently sends `window_start`, `window_end`, and `heart_rate[]` samples.
+
+In this same repository, `backend/routers/biometrics.py` expects:
+
+```json
+{
+  "heart_rate": 72.5,
+  "hrv": 35.0,
+  "activity": 1200
+}
+```
+
+So this Android module is not directly compatible with that backend endpoint without an adapter or payload transformation.

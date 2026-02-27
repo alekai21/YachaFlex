@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.YachaFlex" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/yf_bg_global</item>
+        <item name="android:colorBackground">@color/yf_bg_global</item>
+        <item name="android:colorPrimary">@color/yf_brand_primary</item>
+        <item name="android:colorAccent">@color/yf_brand_primary</item>
+        <item name="android:textColorPrimary">@color/yf_text_primary</item>
+        <item name="android:textColorSecondary">@color/yf_text_secondary</item>
+        <item name="android:statusBarColor">@color/yf_bg_global</item>
+        <item name="android:navigationBarColor">@color/yf_bg_global</item>
+    </style>
+</resources>

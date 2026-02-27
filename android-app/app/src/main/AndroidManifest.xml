@@ -1,0 +1,96 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
+
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
+
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+
+    <application
+        android:label="Yacha Flex Forwarder"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:allowBackup="true"
+        android:theme="@style/Theme.YachaFlex">
+
+        <activity
+            android:name=".PermissionsRationaleActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".PermissionsRationaleActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="true"
+            android:permission="com.google.android.apps.healthdata.permission.START_ONBOARDING">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_ONBOARDING" />
+            </intent-filter>
+        </activity>
+
+        <activity-alias
+            android:name="UAndAboveOnboardingActivity"
+            android:exported="true"
+            android:targetActivity=".OnboardingActivity"
+            android:permission="android.permission.health.START_ONBOARDING">
+            <intent-filter>
+                <action android:name="android.health.connect.action.SHOW_ONBOARDING" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="yachaflex"
+                    android:host="connect" />
+            </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="yachaflex.link"
+                    android:pathPrefix="/connect" />
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".QrScannerActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

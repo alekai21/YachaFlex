@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.YachaFlex" parent="@android:style/TextAppearance.Medium" />
+
+    <style name="Widget.YachaFlex" parent="@android:style/Widget.Material.Button" />
+
+    <style name="TextAppearance.YachaFlex.Title">
+        <item name="android:textColor">@color/yf_text_primary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.YachaFlex.Body">
+        <item name="android:textColor">@color/yf_text_primary</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.YachaFlex.Secondary">
+        <item name="android:textColor">@color/yf_text_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Widget.YachaFlex.Card">
+        <item name="android:background">@drawable/bg_box_orange_outline</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="Widget.YachaFlex.ButtonScan">
+        <item name="android:background">@drawable/bg_button_scan</item>
+        <item name="android:textColor">@color/yf_text_primary</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+    </style>
+
+    <style name="Widget.YachaFlex.ButtonPrimary">
+        <item name="android:background">@drawable/bg_button_primary</item>
+        <item name="android:textColor">@color/yf_text_on_brand</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+    </style>
+
+    <style name="Widget.YachaFlex.ButtonDisabled">
+        <item name="android:background">@drawable/bg_button_disabled</item>
+        <item name="android:textColor">@color/yf_button_disabled_text</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+    </style>
+
+    <style name="Widget.YachaFlex.ButtonReady">
+        <item name="android:background">@drawable/bg_button_ready</item>
+        <item name="android:textColor">@color/yf_text_on_brand</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+    </style>
+</resources>

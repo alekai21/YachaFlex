@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/yf_bg_global"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/headerLogoImage"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="true"
+        android:contentDescription="Yacha Flex"
+        android:paddingBottom="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/yacha_flex_header_logo" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_status_normal"
+        android:padding="12dp"
+        android:text="Ready to scan."
+        android:textAppearance="@style/TextAppearance.YachaFlex.Body" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/yf_divider" />
+
+    <LinearLayout
+        style="@style/Widget.YachaFlex.Card"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Heart-rate Summary"
+            android:textAppearance="@style/TextAppearance.YachaFlex.Body" />
+
+        <TextView
+            android:id="@+id/hrSummaryText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="No heart-rate data loaded."
+            android:textAppearance="@style/TextAppearance.YachaFlex.Secondary"
+            android:textIsSelectable="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp">
+
+        <Button
+            android:id="@+id/scanQrButton"
+            style="@style/Widget.YachaFlex.ButtonScan"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:text="Scan QR" />
+
+        <Button
+            android:id="@+id/sendButton"
+            style="@style/Widget.YachaFlex.ButtonDisabled"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:enabled="false"
+            android:text="Send" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/Widget.YachaFlex.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Endpoint (debug)"
+            android:textAppearance="@style/TextAppearance.YachaFlex.Body" />
+
+        <TextView
+            android:id="@+id/endpointDebugText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="Endpoint: (none)"
+            android:textAppearance="@style/TextAppearance.YachaFlex.Secondary"
+            android:textIsSelectable="true" />
+    </LinearLayout>
+
+</LinearLayout>

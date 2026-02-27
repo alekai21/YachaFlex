@@ -1,0 +1,26 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    // Use an actually published AGP version compatible with Gradle 9.3.1
+    id("com.android.application") version "9.1.0-rc01" apply false
+
+    // Kotlin plugin version >= 1.9.24 (this is newer)
+    id("org.jetbrains.kotlin.android") version "2.2.10" apply false
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "yacha-flex-android"
+include(":app")

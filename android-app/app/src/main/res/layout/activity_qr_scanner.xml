@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/yf_bg_global">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_box_orange_outline"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/scannerStatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Starting camera..."
+            android:textAppearance="@style/TextAppearance.YachaFlex.Body" />
+
+        <Button
+            android:id="@+id/cancelScanButton"
+            style="@style/Widget.YachaFlex.ButtonScan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Cancel" />
+    </LinearLayout>
+
+</FrameLayout>
