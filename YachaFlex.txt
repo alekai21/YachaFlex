@@ -1,0 +1,181 @@
+﻿MVP: Plataforma de Detección de Estrés y Generación de Material Educativo Accesible
+Objetivo del MVP
+El objetivo de este MVP es crear una plataforma capaz de detectar el estrés en estudiantes mediante un check-in rápido y datos biométricos de un smartwatch (frecuencia cardíaca, variabilidad de la frecuencia cardíaca - HRV, actividad física). La plataforma también debe generar material educativo accesible (resúmenes, lectura fácil, flashcards, quiz) adaptado a los niveles de estrés del usuario y mostrar gráficas de evolución del estrés.
+________________
+
+
+Requisitos del MVP
+Funcionalidades principales
+1. Detección de estrés mediante dos componentes:
+   * Check-in de estrés (respuestas rápidas de bienestar, sueño, concentración).
+   * Datos biométricos obtenidos de un smartwatch (frecuencia cardíaca, HRV, actividad física).
+2. Generación de material educativo accesible, que se adapta al nivel de estrés:
+   * Bajo estrés: resúmenes más largos y detallados.
+   * Estrés medio: resúmenes simplificados y preguntas de quiz.
+   * Alto estrés: micro-resúmenes y ejercicios breves.
+3. Visualización de la evolución del estrés a través de gráficos generados con Plotly o Chart.js.
+________________
+
+
+Stack Tecnológico
+El stack tecnológico para el MVP de 48 horas se ha diseñado para ser ágil y adecuado para la entrega rápida de un prototipo funcional.
+Backend: FastAPI
+* FastAPI será el marco principal para la API RESTful, encargada de recibir los datos del usuario, procesar el análisis de estrés y generar las respuestas adecuadas.
+* Se utilizará Uvicorn como servidor ASGI para la ejecución local de la aplicación.
+Frontend: Next.js + TailwindCSS + Chakra UI
+* Next.js para la creación de la interfaz de usuario (UI) y la integración de las APIs del backend.
+* TailwindCSS para un diseño responsivo y de alta calidad sin complicaciones.
+* Chakra UI para componentes accesibles y estilizados que mejorarán la experiencia del usuario.
+Gráficas: Plotly / Chart.js
+* Plotly o Chart.js se utilizarán para la creación de gráficos interactivos y visualizaciones de la evolución del estrés en función del tiempo, utilizando los datos biométricos del smartwatch y los resultados del check-in.
+Base de Datos: SQLite
+* SQLite se utilizará como base de datos local para almacenar datos de usuario, historial de estrés y progreso.
+Autenticación: Next.js Authentication (JWT)
+* Se implementará la autenticación JWT para gestionar el inicio de sesión y la seguridad de las sesiones del usuario.
+Smartwatch SDK: Health Connect (Android) / HealthKit (iOS)
+* El SDK de Health Connect (para dispositivos Android) o HealthKit (para dispositivos iOS) permitirá acceder a los datos biométricos del smartwatch, como la frecuencia cardíaca, HRV, y actividad física del usuario.
+IA: Hugging Face Transformers (GPT-2, DistilBERT)
+* GPT-2 o DistilBERT de Hugging Face se utilizarán para generar resúmenes, simplificación de texto y creación de flashcards adaptados a los niveles de estrés del usuario.
+Despliegue: vercel
+* La aplicación se desplegará en vercel para facilitar el acceso y garantizar que el MVP esté disponible públicamente.
+________________
+
+
+Planificación Detallada del Desarrollo
+Día 1 - Mañana: Preparación y Configuración Básica
+1. Backend (FastAPI):
+   * Crear un servidor básico con FastAPI para manejar solicitudes de datos del usuario (check-in de estrés).
+   * Implementar la lógica para almacenar los datos del check-in en la base de datos SQLite.
+   * Configurar endpoints para recibir respuestas del check-in y analizar el nivel de estrés basado en las respuestas.
+2. Frontend (Next.js, TailwindCSS, Chakra UI):
+   * Configuración inicial del proyecto con Next.js.
+   * Instalar y configurar TailwindCSS y Chakra UI para diseño responsivo.
+   * Crear una página de inicio que permita al usuario realizar el check-in de estrés mediante un formulario.
+3. Base de Datos (SQLite):
+   * Configurar la base de datos local SQLite para almacenar información del usuario y sus niveles de estrés.
+   * Crear la tabla users para almacenar nombre, email y nivel de estrés.
+________________
+
+
+Día 1 - Tarde: Desarrollo de Funcionalidades Básicas
+1. Desarrollo del Check-in de Estrés (Backend):
+   * Implementar la API para recibir respuestas del check-in de estrés (preguntas sobre bienestar, sueño, agotamiento).
+   * Crear lógica para analizar las respuestas y asignar un nivel de estrés bajo, medio o alto.
+2. Integración con Smartwatch (Health Connect / HealthKit):
+   * Configurar la API de Health Connect para dispositivos Android o HealthKit para dispositivos iOS.
+   * Recibir datos de frecuencia cardíaca, HRV y actividad física desde el smartwatch.
+   * Sincronizar estos datos con el backend para ajustar el análisis de estrés.
+3. Generación de Contenido Educativo Accesible (IA):
+   * Implementar el modelo GPT-2 o DistilBERT para generar contenido accesible (resúmenes, flashcards, preguntas de quiz).
+   * Ajustar el contenido generado según el nivel de estrés (bajo, medio, alto).
+________________
+
+
+Día 2 - Mañana: Desarrollo del Frontend y Gráficas
+1. Creación de la Página de Resultados (Frontend):
+   * Crear una página donde el usuario pueda ver sus resultados de estrés junto con el contenido accesible generado por el modelo IA.
+   * Incluir una visualización de gráficas que muestren la evolución del estrés a lo largo del tiempo utilizando Plotly o Chart.js.
+2. Conexión Backend y Frontend:
+   * Conectar el frontend de Next.js con el backend de FastAPI para enviar los datos del check-in y recibir los resultados del análisis de estrés.
+   * Mostrar el contenido generado y las gráficas de estrés en el frontend de manera interactiva.
+________________
+
+
+Día 2 - Tarde: Últimos Ajustes, Pruebas y Despliegue
+1. Pruebas de Integración:
+   * Realizar pruebas de integración para asegurar que:
+      * El check-in y los datos biométricos del smartwatch se sincronizan correctamente.
+      * El contenido educativo se adapta adecuadamente según el nivel de estrés.
+      * Las gráficas de evolución del estrés se generan y muestran correctamente.
+2. Despliegue en vercel:
+   * Desplegar la aplicación en vercel para que esté accesible públicamente.
+   * Asegurarse de que el backend (FastAPI) y el frontend (Next.js) estén correctamente configurados en vercel.
+   * Configurar la base de datos SQLite y las variables de entorno necesarias en vercel.
+________________
+
+
+Estructura del Proyecto
+Backend (FastAPI):
+* main.py: Archivo principal donde se configura FastAPI y los endpoints.
+* database.py: Conexión con la base de datos SQLite y manejo de datos de usuario.
+* models.py: Definición de los modelos de datos (como User).
+* ai.py: Integración con Hugging Face Transformers para generar contenido.
+Frontend (Next.js):
+* pages/index.js: Página principal donde se realiza el check-in de estrés.
+* pages/results.js: Página de resultados con el contenido generado y las gráficas.
+* components/StressForm.js: Componente de formulario para el check-in.
+* components/Chart.js: Componente para mostrar las gráficas de evolución del estrés.
+Base de Datos (SQLite):
+* Tabla users: Almacena los datos del usuario y su nivel de estrés.
+________________
+
+
+Despliegue en vercel
+1. Creación del repositorio en GitHub:
+   * Subir todo el código al repositorio de GitHub.
+2. Despliegue en vercel:
+   * Conectar el repositorio de GitHub a vercel y realizar el despliegue.
+   * Configurar las variables de entorno necesarias (base de datos, claves de API, etc.).
+3. Test de producción:
+   * Asegurarse de que la aplicación esté funcionando correctamente en el entorno de producción.
+________________
+
+
+Resumen de Tareas por Persona
+Persona
+	Tareas
+	Persona 1 (Backend)
+	Configuración de FastAPI, implementación de endpoints de check-in, integración con Health Connect/HealthKit, lógica de análisis de estrés, integración con IA.
+	Persona 2 (Frontend)
+	Creación de la UI en Next.js, diseño con TailwindCSS y Chakra UI, visualización de resultados y gráficos, integración con backend.
+	Persona 3 (Smartwatch)
+	Implementación de la integración con Health Connect/HealthKit, sincronización de datos biométricos con el backend.
+	Persona 4 (Pruebas y Despliegue)
+	Realización de pruebas, integración de todos los componentes, despliegue en vercel, configuración de base de datos y variables de entorno.
+	________________
+
+
+Pitch para la Plataforma:
+Pitch:
+Imagina una plataforma que no solo evalúa tu nivel de estrés, sino que también adapta tu material educativo en tiempo real para ayudarte a aprender de manera más efectiva y menos abrumadora. Presentamos [Nombre de la Plataforma], una herramienta innovadora que utiliza inteligencia artificial y datos biométricos de tu smartwatch para detectar tu estrés y ajustar el contenido educativo a tu nivel de bienestar.
+Con nuestra plataforma, los estudiantes pueden realizar un check-in rápido sobre cómo se sienten y obtener contenido adaptado a su estado emocional, ya sea un resumen fácil, flashcards personalizadas o mini-quizzes. Además, visualizan gráficas interactivas de su evolución de estrés, lo que les permite tomar control sobre su salud mental mientras aprenden.
+Nuestra misión es hacer que el proceso de aprendizaje sea más accesible y menos estresante, permitiendo que cada estudiante pueda aprovechar su potencial máximo sin sentirse abrumado.
+________________
+
+
+Plataformas Similares Existentes:
+1. Headspace        
+   * Propósito: Ofrece herramientas de meditación y mindfulness para reducir el estrés y la ansiedad.
+   * Enfoque: Se centra principalmente en la meditación y el bienestar emocional, pero no adapta el contenido educativo ni utiliza datos biométricos para personalizar la experiencia de aprendizaje.
+
+   2. Calm
+   * Propósito: Aplicación de relajación y meditación que ayuda a los usuarios a reducir el estrés.
+   * Enfoque: Similar a Headspace, pero más centrado en la relajación y el sueño, sin adaptación específica al entorno educativo ni conexión con datos biométricos.
+   3. Forest
+   * Propósito: Ayuda a los usuarios a enfocarse y reducir la procrastinación a través de la creación de "bosques virtuales".
+   * Enfoque: Aunque motiva a los estudiantes a enfocarse, no personaliza el contenido educativo ni monitorea el estrés de manera integral.
+
+      4. MindMeister
+      * Propósito: Herramienta de mapas mentales para organizar el aprendizaje.
+      * Enfoque: Se centra en la productividad, pero no adapta el contenido ni toma en cuenta el bienestar del estudiante mientras aprende.
+
+________________
+
+
+Nuestro Factor Diferencial:
+         * Detección en Tiempo Real y Personalización Basada en Estrés: A diferencia de las plataformas existentes que se enfocan en técnicas generales de relajación, [Nombre de la Plataforma] integra datos biométricos del smartwatch para medir el estrés real del usuario y ajustar el contenido educativo según su nivel de bienestar en ese momento. Esto permite una experiencia educativa realmente personalizada.
+
+         * Integración de Tecnología Biométrica: Usamos Health Connect (Android) o HealthKit (iOS) para recopilar datos precisos sobre la frecuencia cardíaca, HRV, y actividad física, lo que brinda un análisis más objetivo del estrés que las aplicaciones tradicionales de meditación o productividad.
+
+         * Adaptación Automática del Material Educativo: Nuestra plataforma no solo evalúa el estrés, sino que modifica el contenido educativo (resúmenes, flashcards, quizzes) en tiempo real, adaptándose al estado emocional y cognitivo del usuario, asegurando un aprendizaje más eficiente.
+
+         * Visualización de Progreso y Evolución: Además de ajustar el contenido, ofrecemos gráficas interactivas con Plotly/Chart.js para que el estudiante pueda seguir su progreso y ver cómo su nivel de estrés evoluciona a lo largo del tiempo, lo que le permite tomar decisiones informadas sobre su aprendizaje y bienestar.
+
+         * Foco en la Salud Mental en el Contexto Educativo: Mientras que plataformas como Headspace o Calm se enfocan exclusivamente en el bienestar mental de forma general, [Nombre de la Plataforma] integra la salud mental directamente en el proceso educativo, ofreciendo un equilibrio único entre bienestar y rendimiento académico.
+
+________________
+
+
+Este enfoque integral, basado en la detección precisa del estrés y la adaptación dinámica del contenido educativo, hace que nuestra plataforma se distinga de las alternativas existentes y ofrezca una experiencia de aprendizaje más saludable y efectiva.
+Conclusión
+Este MVP es una plataforma rápida y funcional que permite a los usuarios detectar su nivel de estrés y recibir contenido educativo adaptado a su situación. Gracias a la integración con smartwatches y el modelo de IA, la solución es innovadora y proporciona un enfoque personalizado, mientras que el despliegue en vercel asegura que esté accesible desde cualquier lugar.

@@ -1,0 +1,23 @@
+{
+  "name": "yachaflex-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@chakra-ui/react": "^2.10.4",
+    "@chakra-ui/icons": "^2.2.4",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "framer-motion": "^11.9.0",
+    "chart.js": "^4.4.4",
+    "react-chartjs-2": "^5.2.0",
+    "axios": "^1.7.7"
+  }
+}
