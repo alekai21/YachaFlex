@@ -4,103 +4,44 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
-  Badge,
   Box,
-  Button,
-  Grid,
-  Heading,
   HStack,
-  Radio,
-  RadioGroup,
-  Stack,
   Text,
-  VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { STRESS_COLORS, STRESS_LABELS } from "../lib/constants";
+import FlashCards from "./FlashCards";
+import Quiz from "./Quiz";
+import SectionHeading from "./ui/SectionHeading";
 
-const levelColors = { low: "green", medium: "orange", high: "red" };
-const levelLabels = { low: "Bajo", medium: "Medio", high: "Alto" };
-
-function FlashCards({ cards }) {
-  const [flipped, setFlipped] = useState({});
-
+function AccordionSection({ label, borderExpanded, children }) {
   return (
-    <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={4}>
-      {cards.map((card, i) => (
-        <Box
-          key={i}
-          p={4}
-          borderRadius="lg"
-          border="2px solid"
-          borderColor={flipped[i] ? "brand.500" : "gray.200"}
-          cursor="pointer"
-          onClick={() => setFlipped((f) => ({ ...f, [i]: !f[i] }))}
-          minH="120px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          transition="all 0.2s"
-          _hover={{ shadow: "md" }}
-        >
-          <Text fontWeight={flipped[i] ? "normal" : "600"} color={flipped[i] ? "gray.600" : "gray.800"}>
-            {flipped[i] ? card.answer : card.question}
-          </Text>
+    <AccordionItem border="none" mb={2}>
+      <AccordionButton
+        bg="#0d0d0d"
+        border="1px solid #555555"
+        borderRadius="6px"
+        _hover={{ bg: "#1a1a1a", borderColor: "#7a7a7a" }}
+        _expanded={{ borderColor: borderExpanded ?? "#5a5a5a", borderBottomRadius: 0 }}
+        py={3}
+        px={4}
+      >
+        <Box flex="1" textAlign="left" fontWeight="700" color="#c0c0c0" fontSize="md" letterSpacing="0.08em">
+          {label}
         </Box>
-      ))}
-    </Grid>
-  );
-}
-
-function Quiz({ questions }) {
-  const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-
-  const score = submitted
-    ? questions.filter((q, i) => String(answers[i]) === String(q.correct_index)).length
-    : null;
-
-  return (
-    <VStack align="start" spacing={6}>
-      {questions.map((q, i) => (
-        <Box key={i} w="100%">
-          <Text fontWeight="600" mb={2}>
-            {i + 1}. {q.question}
-          </Text>
-          <RadioGroup
-            value={String(answers[i] ?? "")}
-            onChange={(val) => !submitted && setAnswers((a) => ({ ...a, [i]: val }))}
-          >
-            <Stack>
-              {q.options.map((opt, j) => {
-                let color = "inherit";
-                if (submitted) {
-                  if (j === q.correct_index) color = "green.600";
-                  else if (String(answers[i]) === String(j)) color = "red.500";
-                }
-                return (
-                  <Radio key={j} value={String(j)} colorScheme="green">
-                    <Text color={color}>{opt}</Text>
-                  </Radio>
-                );
-              })}
-            </Stack>
-          </RadioGroup>
-        </Box>
-      ))}
-
-      {!submitted ? (
-        <Button colorScheme="green" onClick={() => setSubmitted(true)} isDisabled={Object.keys(answers).length < questions.length}>
-          Verificar respuestas
-        </Button>
-      ) : (
-        <Box p={3} bg="green.50" borderRadius="md" w="100%">
-          <Text fontWeight="bold" color="green.700">
-            Resultado: {score}/{questions.length} correctas
-          </Text>
-        </Box>
-      )}
-    </VStack>
+        <AccordionIcon color="#4a4a4a" />
+      </AccordionButton>
+      <AccordionPanel
+        bg="#0d0d0d"
+        border="1px solid #484848"
+        borderTop="none"
+        borderBottomRadius="6px"
+        pt={4}
+        pb={5}
+        px={4}
+      >
+        {children}
+      </AccordionPanel>
+    </AccordionItem>
   );
 }
 
@@ -108,62 +49,50 @@ export default function ContentCard({ data }) {
   if (!data) return null;
 
   const { stress_level, summary, flashcards, quiz } = data;
-  const color = levelColors[stress_level] || "gray";
-  const label = levelLabels[stress_level] || stress_level;
+  const color = STRESS_COLORS[stress_level] ?? "#8a8a8a";
+  const label = STRESS_LABELS[stress_level] ?? stress_level;
 
   return (
     <Box w="100%">
-      <HStack mb={6}>
-        <Heading size="md">Contenido adaptado</Heading>
-        <Badge colorScheme={color} fontSize="0.9em" px={3} py={1} borderRadius="full">
-          Estrés {label}
-        </Badge>
+      <HStack mb={6} spacing={4}>
+        <SectionHeading title="CONTENIDO ADAPTADO" accentColor="orange" />
+        <Box
+          px={3}
+          py={1}
+          border="1px solid"
+          borderColor={color}
+          borderRadius="4px"
+          sx={{ boxShadow: `0 0 10px ${color}50` }}
+        >
+          <Text color={color} fontSize="xs" fontWeight="700" letterSpacing="0.1em">
+            ESTRES {label}
+          </Text>
+        </Box>
       </HStack>
 
       <Accordion defaultIndex={[0]} allowMultiple>
-        {/* Summary */}
-        <AccordionItem>
-          <AccordionButton>
-            <Box flex="1" textAlign="left" fontWeight="600">
-              📄 Resumen
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel>
-            <Text whiteSpace="pre-wrap" color="gray.700" lineHeight="1.8">
-              {summary}
-            </Text>
-          </AccordionPanel>
-        </AccordionItem>
+        <AccordionSection label="RESUMEN" borderExpanded="#5a5a5a">
+          <Text whiteSpace="pre-wrap" color="#8a8a8a" lineHeight="1.9" fontSize="md">
+            {summary}
+          </Text>
+        </AccordionSection>
 
-        {/* Flashcards */}
-        {flashcards && flashcards.length > 0 && (
-          <AccordionItem>
-            <AccordionButton>
-              <Box flex="1" textAlign="left" fontWeight="600">
-                🃏 Flashcards ({flashcards.length}) — haz clic para revelar
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel>
-              <FlashCards cards={flashcards} />
-            </AccordionPanel>
-          </AccordionItem>
+        {flashcards?.length > 0 && (
+          <AccordionSection
+            label={<>FLASHCARDS <Text as="span" color="#4a4a4a" fontWeight="400" ml={2} fontSize="xs">({flashcards.length}) — clic para revelar</Text></>}
+            borderExpanded="rgba(255,102,0,0.5)"
+          >
+            <FlashCards cards={flashcards} />
+          </AccordionSection>
         )}
 
-        {/* Quiz */}
-        {quiz && quiz.length > 0 && (
-          <AccordionItem>
-            <AccordionButton>
-              <Box flex="1" textAlign="left" fontWeight="600">
-                ✏️ Quiz ({quiz.length} preguntas)
-              </Box>
-              <AccordionIcon />
-            </AccordionButton>
-            <AccordionPanel>
-              <Quiz questions={quiz} />
-            </AccordionPanel>
-          </AccordionItem>
+        {quiz?.length > 0 && (
+          <AccordionSection
+            label={<>QUIZ <Text as="span" color="#4a4a4a" fontWeight="400" ml={2} fontSize="xs">({quiz.length} preguntas)</Text></>}
+            borderExpanded="rgba(255,102,0,0.5)"
+          >
+            <Quiz questions={quiz} />
+          </AccordionSection>
         )}
       </Accordion>
     </Box>

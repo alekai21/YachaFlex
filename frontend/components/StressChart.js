@@ -1,39 +1,29 @@
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Filler,
+  Legend,
   LinearScale,
-  PointElement,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
-  Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { Box, Text } from "@chakra-ui/react";
+import { getStressColor, STRESS_THRESHOLDS } from "../lib/constants";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-const levelColor = (score) => {
-  if (score <= 33) return "#4caf50";
-  if (score <= 66) return "#ff9800";
-  return "#f44336";
-};
+const { low, medium } = STRESS_THRESHOLDS;
 
 export default function StressChart({ records }) {
   if (!records || records.length === 0) {
     return (
-      <Box p={4} textAlign="center" color="gray.400">
-        <Text>No hay historial de estrés todavía.</Text>
+      <Box p={6} textAlign="center">
+        <Text color="#4a4a4a" fontSize="sm" letterSpacing="0.05em">
+          SIN HISTORIAL DE ESTRES TODAVIA
+        </Text>
       </Box>
     );
   }
@@ -44,22 +34,24 @@ export default function StressChart({ records }) {
   });
 
   const scores = records.map((r) => r.stress_score);
-  const pointColors = scores.map(levelColor);
+  const pointColors = scores.map(getStressColor);
 
   const data = {
     labels,
     datasets: [
       {
-        label: "Nivel de estrés",
+        label: "Nivel de estres",
         data: scores,
-        borderColor: "#667eea",
-        backgroundColor: "rgba(102,126,234,0.15)",
+        borderColor: "#8a8a8a",
+        backgroundColor: "rgba(138,138,138,0.06)",
         pointBackgroundColor: pointColors,
         pointBorderColor: pointColors,
+        pointBorderWidth: 2,
         pointRadius: 6,
-        pointHoverRadius: 8,
+        pointHoverRadius: 9,
         fill: true,
         tension: 0.4,
+        borderWidth: 2,
       },
     ],
   };
@@ -69,37 +61,51 @@ export default function StressChart({ records }) {
     plugins: {
       legend: { display: false },
       tooltip: {
+        backgroundColor: "#111111",
+        borderColor: "#2a2a2a",
+        borderWidth: 1,
+        titleColor: "#c0c0c0",
+        bodyColor: "#8a8a8a",
+        padding: 10,
         callbacks: {
           label: (ctx) => {
             const r = records[ctx.dataIndex];
             return [
-              `Estrés: ${ctx.parsed.y.toFixed(1)}`,
-              `Nivel: ${r.stress_level}`,
-              r.has_biometrics ? "📱 Con datos biométricos" : "📝 Solo check-in",
+              `Estres: ${ctx.parsed.y.toFixed(1)}`,
+              `Nivel: ${r.stress_level.toUpperCase()}`,
+              r.has_biometrics ? "Con datos biometricos" : "Solo check-in",
             ];
           },
         },
       },
     },
     scales: {
+      x: {
+        ticks: { color: "#4a4a4a", font: { size: 11, family: "monospace" } },
+        grid: { color: "rgba(72,72,72,0.7)" },
+        border: { color: "#484848" },
+      },
       y: {
         min: 0,
         max: 100,
         ticks: {
+          color: "#4a4a4a",
+          font: { size: 11, family: "monospace" },
           callback: (v) => {
-            if (v === 33) return "↑ Bajo";
-            if (v === 66) return "↑ Medio";
-            if (v === 100) return "Alto";
-            return v;
+            if (v === low) return "BAJO";
+            if (v === medium) return "MEDIO";
+            if (v === 100) return "ALTO";
+            return v === 0 ? "0" : "";
           },
         },
         grid: {
           color: (ctx) => {
-            if (ctx.tick.value === 33 || ctx.tick.value === 66)
-              return "rgba(0,0,0,0.15)";
-            return "rgba(0,0,0,0.05)";
+            if (ctx.tick.value === low) return "rgba(0,232,122,0.2)";
+            if (ctx.tick.value === medium) return "rgba(255,149,0,0.2)";
+            return "rgba(72,72,72,0.6)";
           },
         },
+        border: { color: "#484848" },
       },
     },
   };

@@ -1,13 +1,11 @@
 import {
   Box,
   Button,
-  Heading,
   Slider,
   SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
-  Stack,
   Text,
   Tooltip,
   VStack,
@@ -17,20 +15,20 @@ import { useState } from "react";
 const questions = [
   {
     key: "bienestar",
-    label: "¿Cómo te sientes en general hoy?",
+    label: "Como te sientes en general hoy?",
     lowLabel: "Muy mal",
     highLabel: "Excelente",
   },
   {
     key: "sueno",
-    label: "¿Cómo dormiste anoche?",
+    label: "Como dormiste anoche?",
     lowLabel: "Muy mal",
     highLabel: "Muy bien",
   },
   {
     key: "concentracion",
-    label: "¿Cuál es tu nivel de concentración ahora?",
-    lowLabel: "No puedo concentrarme",
+    label: "Cual es tu nivel de concentracion ahora?",
+    lowLabel: "Sin concentracion",
     highLabel: "Completamente enfocado",
   },
 ];
@@ -40,7 +38,7 @@ function StressSlider({ label, lowLabel, highLabel, value, onChange }) {
 
   return (
     <Box w="100%">
-      <Text fontWeight="600" mb={4}>
+      <Text fontWeight="600" mb={4} color="#c0c0c0" fontSize="md" letterSpacing="0.03em">
         {label}
       </Text>
       <Slider
@@ -53,20 +51,35 @@ function StressSlider({ label, lowLabel, highLabel, value, onChange }) {
         onMouseLeave={() => setShowTooltip(false)}
       >
         {[1, 2, 3, 4, 5].map((v) => (
-          <SliderMark key={v} value={v} mt={3} ml="-2.5" fontSize="sm" color="gray.500">
+          <SliderMark key={v} value={v} mt={3} ml="-2.5" fontSize="xs" color="#4a4a4a" fontFamily="monospace">
             {v}
           </SliderMark>
         ))}
-        <SliderTrack bg="gray.200">
-          <SliderFilledTrack bg="brand.500" />
+        <SliderTrack bg="#484848" h="4px" borderRadius="full">
+          <SliderFilledTrack bg="linear-gradient(90deg, #5a5a5a, #8a8a8a)" />
         </SliderTrack>
-        <Tooltip hasArrow label={value} isOpen={showTooltip} placement="top">
-          <SliderThumb boxSize={6} />
+        <Tooltip
+          hasArrow
+          label={value}
+          isOpen={showTooltip}
+          placement="top"
+          bg="#ff6600"
+          color="white"
+          fontWeight="700"
+          fontFamily="monospace"
+          fontSize="sm"
+        >
+          <SliderThumb
+            boxSize={5}
+            bg="#ff6600"
+            border="2px solid #ff8800"
+            sx={{ boxShadow: "0 0 12px rgba(255,102,0,0.7)" }}
+          />
         </Tooltip>
       </Slider>
       <Box display="flex" justifyContent="space-between" mt={6}>
-        <Text fontSize="xs" color="gray.400">{lowLabel}</Text>
-        <Text fontSize="xs" color="gray.400">{highLabel}</Text>
+        <Text fontSize="sm" color="#4a4a4a" letterSpacing="0.03em">{lowLabel}</Text>
+        <Text fontSize="sm" color="#4a4a4a" letterSpacing="0.03em">{highLabel}</Text>
       </Box>
     </Box>
   );
@@ -98,13 +111,20 @@ export default function StressForm({ onSubmit, isLoading }) {
 
         <Button
           type="submit"
-          colorScheme="green"
           size="lg"
           w="100%"
           isLoading={isLoading}
-          loadingText="Analizando..."
+          loadingText="ANALIZANDO..."
+          bg="#ff6600"
+          color="white"
+          _hover={{ bg: "#ff8800", boxShadow: "0 0 28px rgba(255,102,0,0.5)" }}
+          letterSpacing="0.12em"
+          fontWeight="700"
+          fontSize="sm"
+          boxShadow="0 0 16px rgba(255,102,0,0.3)"
+          borderRadius="6px"
         >
-          Ver mi nivel de estrés
+          ANALIZAR MI NIVEL DE ESTRES
         </Button>
       </VStack>
     </Box>
