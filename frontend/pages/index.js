@@ -1,17 +1,11 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
   Box,
   Button,
   Container,
-  Divider,
-  Heading,
   HStack,
   Input,
   InputGroup,
   InputRightElement,
-  Link,
   Tab,
   TabList,
   TabPanel,
@@ -24,14 +18,21 @@ import {
 import { useRouter } from "next/router";
 import { useState } from "react";
 import StressForm from "../components/StressForm";
-import { login, register, submitCheckin } from "../lib/api";
+import ErrorAlert from "../components/ui/ErrorAlert";
+import Logo from "../components/ui/Logo";
+import PrimaryButton from "../components/ui/PrimaryButton";
+import { useAuth } from "../hooks/useAuth";
+import { useCheckin } from "../hooks/useCheckin";
 
-function AuthPanel({ onSuccess }) {
+// ─── AuthPanel ───────────────────────────────────────────────────────────────
+// Responsabilidad: renderizar formulario login/register y delegar la lógica
+// de auth a las funciones recibidas por props (D: depende de abstracciones)
+function AuthPanel({ onLogin, onRegister }) {
   const [tab, setTab] = useState(0);
   const [form, setForm] = useState({ email: "", password: "", nombre: "" });
+  const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
   const toast = useToast();
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -41,74 +42,103 @@ function AuthPanel({ onSuccess }) {
     setError("");
     setLoading(true);
     try {
-      let res;
       if (tab === 0) {
-        res = await login({ email: form.email, password: form.password });
+        await onLogin({ email: form.email, password: form.password });
       } else {
-        res = await register({ email: form.email, password: form.password, nombre: form.nombre });
+        await onRegister({ email: form.email, password: form.password, nombre: form.nombre });
       }
-      localStorage.setItem("yachaflex_token", res.data.access_token);
-      localStorage.setItem("yachaflex_user", JSON.stringify(res.data.user));
-      toast({ title: "¡Bienvenido!", status: "success", duration: 2000 });
-      onSuccess();
+      toast({ title: "Acceso concedido", status: "success", duration: 2000 });
     } catch (err) {
-      setError(err.response?.data?.detail || "Error de autenticación");
+      setError(err.response?.data?.detail || "Error de autenticacion");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <Box maxW="420px" mx="auto" mt={8} p={8} bg="white" borderRadius="2xl" shadow="lg">
-      <Heading size="lg" mb={2} textAlign="center">
-        🧠 YachaFlex
-      </Heading>
-      <Text color="gray.500" textAlign="center" mb={6} fontSize="sm">
-        Aprende según tu nivel de estrés
-      </Text>
+  const tabProps = {
+    _selected: { color: "#c0c0c0", borderBottomColor: "#8a8a8a" },
+    color: "#4a4a4a",
+    fontSize: "sm",
+    letterSpacing: "0.08em",
+    fontWeight: "700",
+    _hover: { color: "#8a8a8a" },
+  };
 
-      <Tabs isFitted index={tab} onChange={setTab} colorScheme="green">
-        <TabList mb={6}>
-          <Tab>Iniciar sesión</Tab>
-          <Tab>Registrarse</Tab>
+  const PasswordInput = (
+    <InputGroup>
+      <Input
+        name="password"
+        type={showPwd ? "text" : "password"}
+        placeholder="CONTRASENA"
+        value={form.password}
+        onChange={handleChange}
+        required
+        fontSize="sm"
+        letterSpacing="0.05em"
+      />
+      <InputRightElement width="4.5rem">
+        <Button
+          h="1.75rem"
+          size="sm"
+          onClick={() => setShowPwd((v) => !v)}
+          variant="ghost"
+          color="#8a8a8a"
+          fontSize="xs"
+          letterSpacing="0.05em"
+          _hover={{ bg: "#1a1a1a", color: "#c0c0c0" }}
+        >
+          {showPwd ? "OCULTAR" : "VER"}
+        </Button>
+      </InputRightElement>
+    </InputGroup>
+  );
+
+  return (
+    <Box
+      maxW="420px"
+      mx="auto"
+      mt={8}
+      p={8}
+      bg="#111111"
+      border="1px solid"
+      borderColor="rgba(255,102,0,0.4)"
+      borderRadius="8px"
+      boxShadow="0 0 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,102,0,0.08)"
+    >
+      <VStack spacing={1} mb={8}>
+        <Logo size="lg" />
+        <Text color="#8a8a8a" fontSize="sm" letterSpacing="0.15em" textTransform="uppercase" mt={1}>
+          Aprendizaje Adaptativo por IA
+        </Text>
+        <Box h="1px" w="200px" mt={2} bg="linear-gradient(90deg, transparent, #ff6600, transparent)" />
+      </VStack>
+
+      <Tabs isFitted index={tab} onChange={setTab}>
+        <TabList mb={6} borderColor="#484848">
+          <Tab {...tabProps}>INICIAR SESION</Tab>
+          <Tab {...tabProps}>REGISTRARSE</Tab>
         </TabList>
+
         <TabPanels>
           <TabPanel p={0}>
             <form onSubmit={handleSubmit}>
               <VStack spacing={4}>
-                <Input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-                <InputGroup>
-                  <Input name="password" type={showPwd ? "text" : "password"} placeholder="Contraseña" value={form.password} onChange={handleChange} required />
-                  <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" size="sm" onClick={() => setShowPwd((v) => !v)} variant="ghost">
-                      {showPwd ? "Ocultar" : "Ver"}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-                {error && <Alert status="error" borderRadius="md"><AlertIcon /><AlertDescription>{error}</AlertDescription></Alert>}
-                <Button type="submit" colorScheme="green" w="100%" isLoading={loading}>
-                  Entrar
-                </Button>
+                <Input name="email" type="email" placeholder="EMAIL" value={form.email} onChange={handleChange} required fontSize="sm" letterSpacing="0.05em" />
+                {PasswordInput}
+                <ErrorAlert message={error} />
+                <PrimaryButton type="submit" w="100%" isLoading={loading}>ENTRAR</PrimaryButton>
               </VStack>
             </form>
           </TabPanel>
+
           <TabPanel p={0}>
             <form onSubmit={handleSubmit}>
               <VStack spacing={4}>
-                <Input name="nombre" placeholder="Tu nombre" value={form.nombre} onChange={handleChange} required />
-                <Input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-                <InputGroup>
-                  <Input name="password" type={showPwd ? "text" : "password"} placeholder="Contraseña" value={form.password} onChange={handleChange} required />
-                  <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" size="sm" onClick={() => setShowPwd((v) => !v)} variant="ghost">
-                      {showPwd ? "Ocultar" : "Ver"}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-                {error && <Alert status="error" borderRadius="md"><AlertIcon /><AlertDescription>{error}</AlertDescription></Alert>}
-                <Button type="submit" colorScheme="green" w="100%" isLoading={loading}>
-                  Crear cuenta
-                </Button>
+                <Input name="nombre" placeholder="NOMBRE" value={form.nombre} onChange={handleChange} required fontSize="sm" letterSpacing="0.05em" />
+                <Input name="email" type="email" placeholder="EMAIL" value={form.email} onChange={handleChange} required fontSize="sm" letterSpacing="0.05em" />
+                {PasswordInput}
+                <ErrorAlert message={error} />
+                <PrimaryButton type="submit" w="100%" isLoading={loading}>CREAR CUENTA</PrimaryButton>
               </VStack>
             </form>
           </TabPanel>
@@ -118,83 +148,91 @@ function AuthPanel({ onSuccess }) {
   );
 }
 
+// ─── CheckinPanel ─────────────────────────────────────────────────────────────
+// Responsabilidad: orquestar el check-in (formulario + navegación a resultados)
 function CheckinPanel({ user, onLogout }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const router = useRouter();
   const toast = useToast();
+  const { submit, loading, error } = useCheckin();
 
   const handleCheckin = async (values) => {
-    setError("");
-    setLoading(true);
-    try {
-      const res = await submitCheckin(values);
-      const { stress_level, stress_score, record_id } = res.data;
-      toast({
-        title: `Estrés detectado: ${stress_level}`,
-        description: res.data.message,
-        status: stress_level === "low" ? "success" : stress_level === "medium" ? "warning" : "error",
-        duration: 3000,
-      });
-      router.push(`/results?record_id=${record_id}&stress_level=${stress_level}&stress_score=${stress_score}`);
-    } catch (err) {
-      setError(err.response?.data?.detail || "Error al enviar check-in");
-    } finally {
-      setLoading(false);
-    }
+    const data = await submit(values);
+    if (!data) return;
+    const { stress_level, stress_score, record_id } = data;
+    toast({
+      title: `Estres detectado: ${stress_level.toUpperCase()}`,
+      description: data.message,
+      status: stress_level === "low" ? "success" : stress_level === "medium" ? "warning" : "error",
+      duration: 3000,
+    });
+    router.push(`/results?record_id=${record_id}&stress_level=${stress_level}&stress_score=${stress_score}`);
   };
 
   return (
     <Box>
       <HStack justify="space-between" mb={8}>
-        <Heading size="lg">🧠 YachaFlex</Heading>
-        <HStack>
-          <Text color="gray.500" fontSize="sm">Hola, {user.nombre}</Text>
-          <Button size="sm" variant="ghost" onClick={onLogout}>Salir</Button>
+        <Logo size="sm" />
+        <HStack spacing={4}>
+          <Text color="#4a4a4a" fontSize="sm" letterSpacing="0.05em" textTransform="uppercase">
+            {user.nombre}
+          </Text>
+          <Button
+            size="sm"
+            variant="ghost"
+            color="#8a8a8a"
+            onClick={onLogout}
+            border="1px solid #555555"
+            _hover={{ bg: "#1a1a1a", borderColor: "#8a8a8a", color: "#c0c0c0" }}
+            letterSpacing="0.08em"
+            fontSize="xs"
+            fontWeight="700"
+          >
+            SALIR
+          </Button>
         </HStack>
       </HStack>
 
-      <Box bg="white" p={8} borderRadius="2xl" shadow="sm">
-        <Heading size="md" mb={2}>Check-in de bienestar</Heading>
-        <Text color="gray.500" mb={8} fontSize="sm">
-          Responde estas 3 preguntas para detectar tu nivel de estrés y recibir contenido adaptado.
+      <Box
+        bg="#111111"
+        p={8}
+        border="1px solid"
+        borderColor="rgba(255,102,0,0.35)"
+        borderRadius="8px"
+        boxShadow="0 0 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,102,0,0.06)"
+      >
+        <HStack mb={2}>
+          <Box w="3px" h="22px" bg="#ff6600" borderRadius="full" sx={{ boxShadow: "0 0 10px rgba(255,102,0,0.7)" }} />
+          <Text fontWeight="700" fontSize="md" color="#c0c0c0" letterSpacing="0.1em">CHECK-IN DE BIENESTAR</Text>
+        </HStack>
+        <Text color="#4a4a4a" mb={8} fontSize="md" letterSpacing="0.02em" pl={3}>
+          Responde estas 3 preguntas para detectar tu nivel de estres y recibir contenido adaptado.
         </Text>
-        {error && (
-          <Alert status="error" mb={4} borderRadius="md">
-            <AlertIcon /><AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        <StressForm onSubmit={handleCheckin} isLoading={loading} />
+        <ErrorAlert message={error} />
+        <Box mt={error ? 4 : 0}>
+          <StressForm onSubmit={handleCheckin} isLoading={loading} />
+        </Box>
       </Box>
     </Box>
   );
 }
 
+// ─── Home (orquestador) ───────────────────────────────────────────────────────
+// Responsabilidad: decidir qué panel mostrar según estado de autenticación
 export default function Home() {
-  const [user, setUser] = useState(() => {
-    if (typeof window !== "undefined") {
-      try { return JSON.parse(localStorage.getItem("yachaflex_user")); } catch { return null; }
-    }
-    return null;
-  });
-
-  const handleAuthSuccess = () => {
-    setUser(JSON.parse(localStorage.getItem("yachaflex_user")));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("yachaflex_token");
-    localStorage.removeItem("yachaflex_user");
-    setUser(null);
-  };
+  const { user, login, register, logout } = useAuth();
 
   return (
-    <Box minH="100vh" bg="gray.50" py={10}>
+    <Box
+      minH="100vh"
+      bgImage="linear-gradient(rgba(140,140,140,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(140,140,140,0.04) 1px, transparent 1px)"
+      bgSize="40px 40px"
+      py={10}
+    >
       <Container maxW="container.md">
         {!user ? (
-          <AuthPanel onSuccess={handleAuthSuccess} />
+          <AuthPanel onLogin={login} onRegister={register} />
         ) : (
-          <CheckinPanel user={user} onLogout={handleLogout} />
+          <CheckinPanel user={user} onLogout={logout} />
         )}
       </Container>
     </Box>

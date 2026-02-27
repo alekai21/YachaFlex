@@ -1,93 +1,131 @@
 """
-Ollama client for generating adaptive educational content.
-Calls the local Ollama API (http://localhost:11434).
+Groq API client for generating adaptive educational content.
+Uses the free Groq API — no local installation needed.
+Groq is OpenAI-compatible and extremely fast.
+
+Sign up at: https://console.groq.com
+Free tier: ~14,400 requests/day with llama-3.1-8b-instant
 """
 
 import httpx
 import json
+import re
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
-def _build_prompt(text: str, stress_level: str) -> str:
+def _build_messages(text: str, stress_level: str) -> list:
     if stress_level == "low":
-        length_instruction = (
-            "The student is calm and focused. Provide a DETAILED summary (200-300 words), "
-            "5 flashcards, and 5 quiz questions with 4 options each."
+        instructions = (
+            "The student is calm and focused. Write a DETAILED summary (200-300 words), "
+            "exactly 5 flashcards, and exactly 5 quiz questions with 4 options each."
         )
     elif stress_level == "medium":
-        length_instruction = (
-            "The student has moderate stress. Provide a SIMPLIFIED summary (100-150 words), "
-            "3 flashcards, and 3 quiz questions with 4 options each."
+        instructions = (
+            "The student has moderate stress. Write a SIMPLIFIED summary (100-150 words), "
+            "exactly 3 flashcards, and exactly 3 quiz questions with 4 options each."
         )
     else:  # high
-        length_instruction = (
-            "The student is highly stressed. Provide a VERY SHORT micro-summary (50-80 words), "
-            "3 simple flashcards, and 2 quiz questions with 4 options each."
+        instructions = (
+            "The student is highly stressed. Write a VERY SHORT micro-summary (50-80 words), "
+            "exactly 3 simple flashcards, and exactly 2 quiz questions with 4 options each."
         )
 
-    return f"""You are an educational assistant adapting content for students based on their stress level.
+    return [
+        {
+            "role": "system",
+            "content": (
+                "You are an educational assistant. "
+                "You MUST respond ONLY with a valid JSON object. "
+                "No markdown, no code blocks, no explanation — just the raw JSON."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"Adapt the following text for a student with {stress_level.upper()} stress level.\n"
+                f"{instructions}\n\n"
+                f"Text:\n\"\"\"{text}\"\"\"\n\n"
+                "Respond ONLY with this exact JSON structure:\n"
+                '{\n'
+                '  "summary": "...",\n'
+                '  "flashcards": [\n'
+                '    {"question": "...", "answer": "..."}\n'
+                '  ],\n'
+                '  "quiz": [\n'
+                '    {\n'
+                '      "question": "...",\n'
+                '      "options": ["A", "B", "C", "D"],\n'
+                '      "correct_index": 0\n'
+                '    }\n'
+                '  ]\n'
+                '}'
+            ),
+        },
+    ]
 
-Student stress level: {stress_level.upper()}
-{length_instruction}
 
-Text to process:
-\"\"\"
-{text}
-\"\"\"
+def _extract_json(raw: str) -> dict:
+    """Extract a valid JSON object from raw model output."""
+    raw = raw.strip()
 
-Respond ONLY with valid JSON in this exact format (no extra text):
-{{
-  "summary": "...",
-  "flashcards": [
-    {{"question": "...", "answer": "..."}},
-    ...
-  ],
-  "quiz": [
-    {{
-      "question": "...",
-      "options": ["A", "B", "C", "D"],
-      "correct_index": 0
-    }},
-    ...
-  ]
-}}"""
+    # Remove markdown code blocks if present
+    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+    raw = re.sub(r"\s*```$", "", raw)
+    raw = raw.strip()
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        pass
+
+    # Find first { ... } block
+    match = re.search(r'\{.*\}', raw, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group())
+        except json.JSONDecodeError:
+            pass
+
+    return {}
 
 
 async def generate_content(text: str, stress_level: str) -> dict:
     """
-    Calls Ollama to generate summary, flashcards and quiz.
+    Calls Groq API to generate summary, flashcards and quiz.
     Returns a dict with keys: summary, flashcards, quiz.
-    Raises httpx.HTTPError on connection issues.
     """
-    prompt = _build_prompt(text, stress_level)
+    if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_XXX"):
+        raise ValueError("GROQ_API_KEY not configured in .env file")
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
+    messages = _build_messages(text, stress_level)
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
-            f"{OLLAMA_BASE_URL}/api/generate",
+            GROQ_API_URL,
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json",
+            },
             json={
-                "model": OLLAMA_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "format": "json",
+                "model": GROQ_MODEL,
+                "messages": messages,
+                "temperature": 0.3,
+                "max_tokens": 1500,
+                "response_format": {"type": "json_object"},
             },
         )
         response.raise_for_status()
         data = response.json()
 
-    raw = data.get("response", "{}")
-    try:
-        result = json.loads(raw)
-    except json.JSONDecodeError:
-        # Attempt to extract JSON block if model added extra text
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-        result = json.loads(raw[start:end]) if start != -1 else {}
+    raw = data["choices"][0]["message"]["content"]
+    result = _extract_json(raw)
 
     return {
         "summary": result.get("summary", ""),
