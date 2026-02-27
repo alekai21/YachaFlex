@@ -11,37 +11,39 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma3:1b")
 
 
 def _build_prompt(text: str, stress_level: str) -> str:
     if stress_level == "low":
+
         length_instruction = (
-            "The student is calm and focused. Provide a DETAILED summary (200-300 words), "
-            "5 flashcards, and 5 quiz questions with 4 options each."
+            "El estudiante está tranquilo y concentrado. Proporciona un resumen DETALLADO (200-300 palabras), "
+            "5 tarjetas de estudio y 5 preguntas de cuestionario con 4 opciones cada una."
         )
     elif stress_level == "medium":
         length_instruction = (
-            "The student has moderate stress. Provide a SIMPLIFIED summary (100-150 words), "
-            "3 flashcards, and 3 quiz questions with 4 options each."
+            "El estudiante tiene estrés moderado. Proporciona un resumen SIMPLIFICADO (100-150 palabras), "
+            "3 tarjetas de estudio y 3 preguntas de cuestionario con 4 opciones cada una."
         )
-    else:  # high
+    else:  # alto
         length_instruction = (
-            "The student is highly stressed. Provide a VERY SHORT micro-summary (50-80 words), "
-            "3 simple flashcards, and 2 quiz questions with 4 options each."
+            "El estudiante está muy estresado. Proporciona un micro-resumen CORTO (50-80 palabras), "
+            "3 tarjetas de estudio simples y 2 preguntas de cuestionario con 4 opciones cada una."
         )
+   
+    return f"""Eres un asistente educativo que adapta el contenido para estudiantes según su nivel de estrés.
+    Detecta el idioma del texto y responde en el mismo idioma.
 
-    return f"""You are an educational assistant adapting content for students based on their stress level.
-
-Student stress level: {stress_level.upper()}
+Nivel de estrés del estudiante: {stress_level.upper()}
 {length_instruction}
 
-Text to process:
+Texto a procesar:
 \"\"\"
 {text}
 \"\"\"
 
-Respond ONLY with valid JSON in this exact format (no extra text):
+Responde SOLO con JSON válido en este formato exacto (sin texto adicional):
 {{
   "summary": "...",
   "flashcards": [
