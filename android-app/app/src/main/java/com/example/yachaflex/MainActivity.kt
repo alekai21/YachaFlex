@@ -13,6 +13,8 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.lifecycle.lifecycleScope
@@ -23,7 +25,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
@@ -41,7 +42,9 @@ class MainActivity : ComponentActivity() {
 
     private val providerPackageName = "com.google.android.apps.healthdata"
     private val readPermissions = setOf(
-        HealthPermission.getReadPermission(HeartRateRecord::class)
+        HealthPermission.getReadPermission(HeartRateRecord::class),
+        HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class),
+        HealthPermission.getReadPermission(StepsRecord::class),
     )
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
         .withZone(ZoneId.systemDefault())
@@ -53,8 +56,8 @@ class MainActivity : ComponentActivity() {
     private val requestPermissionsLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { grantedPermissions ->
-        if (readPermissions.all { it in grantedPermissions }) {
-            fetchLastHourHeartRate()
+        if (HealthPermission.getReadPermission(HeartRateRecord::class) in grantedPermissions) {
+            fetchBiometrics()
         } else {
             statusText.text = "Permission denied."
         }
@@ -112,34 +115,32 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleDeepLinkIntent(incomingIntent: Intent?) {
-        if (incomingIntent?.action != Intent.ACTION_VIEW) {
-            return
-        }
-        val raw = incomingIntent.dataString
-        if (raw.isNullOrBlank()) {
-            return
-        }
+        if (incomingIntent?.action != Intent.ACTION_VIEW) return
+        val raw = incomingIntent.dataString ?: return
         processIncomingContent(raw, fromQr = false)
         incomingIntent.data = null
     }
 
     private fun processIncomingContent(rawContent: String, fromQr: Boolean) {
-        val endpoint = extractEndpointFromIncomingContent(rawContent)?.trim().orEmpty()
-        if (endpoint.isBlank()) {
+        val parsed = parseQrContent(rawContent)
+        if (parsed == null || parsed.endpoint.isBlank()) {
             setStatus("Scan failed.", isError = true)
             return
         }
 
-        sessionViewModel.endpoint = endpoint
+        sessionViewModel.endpoint = parsed.endpoint
+        sessionViewModel.authToken = parsed.token
         sessionViewModel.payloadJson = null
         sessionViewModel.summaryText = null
         sendButton.isEnabled = false
-        endpointDebugText.text = "Endpoint: $endpoint"
+        endpointDebugText.text = "Endpoint: ${parsed.endpoint}"
         setStatus(if (fromQr) "QR scanned successfully." else "Endpoint received.")
-        fetchLastHourHeartRate()
+        fetchBiometrics()
     }
 
-    private fun extractEndpointFromIncomingContent(rawContent: String): String? {
+    private data class ParsedQrContent(val endpoint: String, val token: String?)
+
+    private fun parseQrContent(rawContent: String): ParsedQrContent? {
         val content = rawContent.trim()
         val uri = runCatching { Uri.parse(content) }.getOrNull() ?: return null
 
@@ -150,13 +151,16 @@ class MainActivity : ComponentActivity() {
             uri.path?.startsWith("/connect") == true
 
         return if (isCustomDeepLink || isHttpsDeepLink) {
-            uri.getQueryParameter("endpoint") ?: content
+            ParsedQrContent(
+                endpoint = uri.getQueryParameter("endpoint") ?: content,
+                token = uri.getQueryParameter("token"),
+            )
         } else {
-            content
+            ParsedQrContent(endpoint = content, token = null)
         }
     }
 
-    private fun fetchLastHourHeartRate() {
+    private fun fetchBiometrics() {
         when (HealthConnectClient.getSdkStatus(this, providerPackageName)) {
             HealthConnectClient.SDK_UNAVAILABLE -> {
                 setStatus("Health Connect unavailable.", isError = true)
@@ -192,66 +196,60 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private data class HeartRateFetchResult(
-        val payloadJson: String,
-        val summaryText: String
-    )
+    private data class BiometricFetchResult(val payloadJson: String, val summaryText: String)
 
-    private suspend fun buildPayloadAndSummary(): HeartRateFetchResult {
+    private suspend fun buildPayloadAndSummary(): BiometricFetchResult {
         val windowEnd = Instant.now()
         val windowStart = windowEnd.minus(1, ChronoUnit.HOURS)
+        val timeRange = TimeRangeFilter.between(windowStart, windowEnd)
 
-        val records = healthClient.readRecords(
-            ReadRecordsRequest(
-                HeartRateRecord::class,
-                timeRangeFilter = TimeRangeFilter.between(windowStart, windowEnd)
-            )
+        // ── Heart Rate ──────────────────────────────────────────────────────
+        val hrRecords = healthClient.readRecords(
+            ReadRecordsRequest(HeartRateRecord::class, timeRangeFilter = timeRange)
         ).records
+        val hrSamples = hrRecords.flatMap { it.samples }.sortedBy { it.time }
+        val avgHr = hrSamples.map { it.beatsPerMinute }.average().takeIf { hrSamples.isNotEmpty() }
 
-        val samples = records
-            .flatMap { it.samples }
-            .sortedBy { it.time }
+        // ── HRV (RMSSD) ─────────────────────────────────────────────────────
+        val hrvRecords = try {
+            healthClient.readRecords(
+                ReadRecordsRequest(HeartRateVariabilityRmssdRecord::class, timeRangeFilter = timeRange)
+            ).records
+        } catch (_: Exception) { emptyList() }
+        val avgHrv = hrvRecords.map { it.heartRateVariabilityMillis }.average()
+            .takeIf { hrvRecords.isNotEmpty() }
 
-        val heartRateArray = JSONArray()
-        samples.forEach { sample ->
-            heartRateArray.put(
-                JSONObject()
-                    .put("time", sample.time.toString())
-                    .put("bpm", sample.beatsPerMinute)
-            )
-        }
+        // ── Steps ────────────────────────────────────────────────────────────
+        val stepsRecords = try {
+            healthClient.readRecords(
+                ReadRecordsRequest(StepsRecord::class, timeRangeFilter = timeRange)
+            ).records
+        } catch (_: Exception) { emptyList() }
+        val totalSteps = stepsRecords.sumOf { it.count }.takeIf { it > 0 }?.toDouble()
 
-        val payloadJson = JSONObject()
-            .put("window_start", windowStart.toString())
-            .put("window_end", windowEnd.toString())
-            .put("heart_rate", heartRateArray)
-            .toString()
+        // ── Payload (formato que espera el backend) ──────────────────────────
+        val payload = JSONObject()
+        avgHr?.let { payload.put("heart_rate", it) }
+        avgHrv?.let { payload.put("hrv", it) }
+        totalSteps?.let { payload.put("activity", it) }
 
-        val count = samples.size
-        val minBpm = samples.minOfOrNull { it.beatsPerMinute }
-        val maxBpm = samples.maxOfOrNull { it.beatsPerMinute }
-        val avgBpm = if (count == 0) null else samples.map { it.beatsPerMinute }.average()
-        val lastTen = samples.takeLast(10).reversed()
-
-        val lastTenText = if (lastTen.isEmpty()) {
-            "Last samples: (none)"
-        } else {
-            "Last samples:\n" + lastTen.joinToString("\n") { sample ->
-                "${timeFormatter.format(sample.time)} - ${sample.beatsPerMinute} bpm"
-            }
+        // ── Resumen para UI ──────────────────────────────────────────────────
+        val lastFiveHr = hrSamples.takeLast(5).reversed()
+        val lastFiveText = if (lastFiveHr.isEmpty()) "Last HR: (none)"
+        else "Last HR:\n" + lastFiveHr.joinToString("\n") { s ->
+            "${timeFormatter.format(s.time)} → ${s.beatsPerMinute} bpm"
         }
 
         val summaryText = buildString {
-            appendLine("Window start: ${windowStart}")
-            appendLine("Window end: ${windowEnd}")
-            appendLine("Sample count: $count")
-            appendLine("Min bpm: ${minBpm ?: "-"}")
-            appendLine("Max bpm: ${maxBpm ?: "-"}")
-            appendLine("Avg bpm: ${avgBpm?.let { String.format(Locale.US, "%.1f", it) } ?: "-"}")
-            append(lastTenText)
+            appendLine("Window: last 60 min")
+            appendLine("HR:    ${avgHr?.let { String.format(Locale.US, "%.1f bpm", it) } ?: "-"} (${hrSamples.size} samples)")
+            appendLine("HRV:   ${avgHrv?.let { String.format(Locale.US, "%.1f ms", it) } ?: "-"} (${hrvRecords.size} samples)")
+            appendLine("Steps: ${totalSteps?.toInt() ?: "-"}")
+            appendLine()
+            append(lastFiveText)
         }
 
-        return HeartRateFetchResult(payloadJson, summaryText)
+        return BiometricFetchResult(payload.toString(), summaryText)
     }
 
     private fun sendPayload() {
@@ -266,11 +264,13 @@ class MainActivity : ComponentActivity() {
             try {
                 val success = withContext(Dispatchers.IO) {
                     val body = payload.toRequestBody("application/json".toMediaType())
-                    val request = Request.Builder()
+                    val requestBuilder = Request.Builder()
                         .url(endpoint)
                         .post(body)
-                        .build()
-                    httpClient.newCall(request).execute().use { response ->
+                    sessionViewModel.authToken?.let { token ->
+                        requestBuilder.addHeader("Authorization", "Bearer $token")
+                    }
+                    httpClient.newCall(requestBuilder.build()).execute().use { response ->
                         response.isSuccessful
                     }
                 }
@@ -296,7 +296,7 @@ class MainActivity : ComponentActivity() {
         val isReadyToSend = !sessionViewModel.payloadJson.isNullOrBlank()
         sendButton.isEnabled = isReadyToSend
         updateSendButtonVisualState(isReadyToSend)
-        hrSummaryText.text = sessionViewModel.summaryText ?: "No heart-rate data loaded."
+        hrSummaryText.text = sessionViewModel.summaryText ?: "No biometric data loaded."
         endpointDebugText.text = "Endpoint: ${sessionViewModel.endpoint ?: "(none)"}"
         if (sessionViewModel.endpoint == null && sessionViewModel.payloadJson == null) {
             setStatus("Ready to scan.")

@@ -17,14 +17,76 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StressForm from "../components/StressForm";
 import ErrorAlert from "../components/ui/ErrorAlert";
 import Logo from "../components/ui/Logo";
 import PrimaryButton from "../components/ui/PrimaryButton";
+import SectionHeading from "../components/ui/SectionHeading";
 import { useAuth } from "../hooks/useAuth";
 import { useCheckin } from "../hooks/useCheckin";
+import { getToken } from "../lib/auth";
+
+const QRCodeSVG = dynamic(
+  () => import("qrcode.react").then((m) => m.QRCodeSVG),
+  { ssr: false }
+);
+
+function BiometricQRCard() {
+  const [qrUrl, setQrUrl] = useState("");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+
+  useEffect(() => {
+    const token = getToken();
+    if (token && apiUrl) {
+      const endpoint = `${apiUrl}/biometrics`;
+      setQrUrl(
+        `yachaflex://connect?endpoint=${encodeURIComponent(endpoint)}&token=${encodeURIComponent(token)}`
+      );
+    }
+  }, [apiUrl]);
+
+  if (!qrUrl) return null;
+
+  return (
+    <Box
+      bg="ui.card"
+      p={6}
+      border="1px solid"
+      borderColor="rgba(255,102,0,0.35)"
+      borderRadius="8px"
+      boxShadow="0 0 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,102,0,0.06)"
+      mt={6}
+    >
+      <SectionHeading title="CONECTAR SMARTWATCH" accentColor="orange" />
+      <VStack spacing={3} mt={4} align="center">
+        <VStack spacing={1} align="center">
+          <Text color="ui.textSub" fontSize="sm" letterSpacing="0.05em" textAlign="center">
+            <Text as="span" color="#ff6600" fontWeight="700">Paso 1</Text>
+            {" "}— Escanea el QR con la app YachaFlex Forwarder
+          </Text>
+          <Text color="ui.textMuted" fontSize="xs" textAlign="center" letterSpacing="0.03em">
+            El app leerá los biométricos de tu smartwatch y esperará.
+          </Text>
+        </VStack>
+        <Box p={4} bg="white" borderRadius="8px" display="inline-block">
+          <QRCodeSVG value={qrUrl} size={180} />
+        </Box>
+        <VStack spacing={1} align="center">
+          <Text color="ui.textSub" fontSize="sm" letterSpacing="0.05em" textAlign="center">
+            <Text as="span" color="#ff6600" fontWeight="700">Paso 2</Text>
+            {" "}— Completa el formulario de bienestar y envía
+          </Text>
+          <Text color="ui.textMuted" fontSize="xs" textAlign="center" letterSpacing="0.03em">
+            Luego pulsa <Text as="span" fontWeight="700">Send</Text> en el app para combinar ambos datos.
+          </Text>
+        </VStack>
+      </VStack>
+    </Box>
+  );
+}
 
 // ─── AuthPanel ───────────────────────────────────────────────────────────────
 // Responsabilidad: renderizar formulario login/register y delegar la lógica
@@ -214,6 +276,8 @@ function CheckinPanel({ user, onLogout }) {
           <StressForm onSubmit={handleCheckin} isLoading={loading} />
         </Box>
       </Box>
+
+      <BiometricQRCard />
     </Box>
   );
 }
