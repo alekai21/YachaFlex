@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import main\")",
+      "Bash(netstat -ano)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(curl -s http://localhost:8000/docs)",
+      "Bash(python -c \":*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://5jx97n0t-8000.brs.devtunnels.ms/health)",
+      "Bash(curl -s https://5jx97n0t-8000.brs.devtunnels.ms/history -H \"Authorization: Bearer invalid\" -w \"\\\\nHTTP: %{http_code}\")"
+    ]
+  }
+}

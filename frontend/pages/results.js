@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertDescription,
   Box,
   Button,
   Container,
@@ -21,7 +23,7 @@ import { useHistory } from "../hooks/useHistory";
 export default function Results() {
   const router = useRouter();
   const { record_id, stress_level, stress_score } = router.query;
-  const { records, loading: historyLoading } = useHistory();
+  const { records, loading: historyLoading, error: historyError } = useHistory();
 
   const score = parseFloat(stress_score || 0);
   const level = stress_level || "medium";
@@ -77,6 +79,12 @@ export default function Results() {
                 <Spinner color="ui.textSub" size="md" />
                 <Text color="ui.textMuted" fontSize="sm" letterSpacing="0.05em">CARGANDO HISTORIAL...</Text>
               </VStack>
+            ) : historyError ? (
+              <Alert status="error" borderRadius="6px" bg="rgba(255,34,68,0.12)" border="1px solid rgba(255,34,68,0.3)">
+                <AlertDescription color="#ff2244" fontSize="sm" letterSpacing="0.05em">
+                  {historyError}
+                </AlertDescription>
+              </Alert>
             ) : (
               <StressChart records={records} />
             )}
