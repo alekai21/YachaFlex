@@ -28,27 +28,168 @@ import SectionHeading from "../components/ui/SectionHeading";
 import { useAuth } from "../hooks/useAuth";
 import { useCheckin } from "../hooks/useCheckin";
 import { getToken } from "../lib/auth";
+import { getBiometricsStatus } from "../lib/api";
 
 const QRCodeSVG = dynamic(
   () => import("qrcode.react").then((m) => m.QRCodeSVG),
   { ssr: false }
 );
 
+// ─── BiometricsDisplay ────────────────────────────────────────────────────────
+// Shown once the smartwatch sends data: plots heart rate + secondary metrics
+function BiometricsDisplay({ data }) {
+  const hr = data.heart_rate;
+  const hrv = data.hrv;
+  const activity = data.activity;
+
+  // HR scale 50–150 bpm
+  const hrPercent = Math.min(100, Math.max(0, ((hr - 50) / 100) * 100));
+  const hrColor =
+    hr < 60 ? "#60a5fa"
+    : hr <= 100 ? "#22c55e"
+    : hr <= 120 ? "#f97316"
+    : "#ef4444";
+  const hrLabel =
+    hr < 60 ? "BAJO" : hr <= 100 ? "NORMAL" : hr <= 120 ? "ELEVADO" : "ALTO";
+
+  return (
+    <Box
+      bg="ui.card"
+      p={6}
+      border="1px solid"
+      borderColor="rgba(34,197,94,0.4)"
+      borderRadius="8px"
+      boxShadow="0 0 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.06)"
+      mt={6}
+    >
+      <SectionHeading title="SMARTWATCH CONECTADO" accentColor="orange" />
+
+      <VStack spacing={5} mt={4}>
+        {/* ── Heart Rate bar ── */}
+        <Box w="100%">
+          <HStack justify="space-between" mb={2}>
+            <Text color="ui.textSub" fontSize="xs" letterSpacing="0.1em" fontWeight="700">
+              FRECUENCIA CARDÍACA
+            </Text>
+            <HStack spacing={2} align="baseline">
+              <Text color={hrColor} fontSize="2xl" fontWeight="800" lineHeight={1}>
+                {Math.round(hr)}
+              </Text>
+              <Text color="ui.textMuted" fontSize="xs">bpm</Text>
+              <Text color={hrColor} fontSize="xs" fontWeight="700" letterSpacing="0.08em">
+                {hrLabel}
+              </Text>
+            </HStack>
+          </HStack>
+
+          {/* progress bar */}
+          <Box bg="rgba(255,255,255,0.08)" borderRadius="full" h="10px" overflow="hidden">
+            <Box
+              w={`${hrPercent}%`}
+              h="100%"
+              bg={hrColor}
+              borderRadius="full"
+              sx={{
+                transition: "width 0.7s ease",
+                boxShadow: `0 0 10px ${hrColor}88`,
+              }}
+            />
+          </Box>
+          <HStack justify="space-between" mt={1}>
+            <Text color="ui.textMuted" fontSize="xs">50 bpm</Text>
+            <Text color="ui.textMuted" fontSize="xs">150 bpm</Text>
+          </HStack>
+        </Box>
+
+        {/* ── HRV & Activity ── */}
+        <HStack w="100%" spacing={4}>
+          {hrv != null && (
+            <Box
+              flex={1}
+              bg="rgba(255,255,255,0.04)"
+              p={3}
+              borderRadius="6px"
+              border="1px solid"
+              borderColor="rgba(255,255,255,0.08)"
+              textAlign="center"
+            >
+              <Text color="ui.textMuted" fontSize="xs" letterSpacing="0.08em" mb={1}>HRV</Text>
+              <Text color="ui.text" fontSize="xl" fontWeight="700">{Math.round(hrv)}</Text>
+              <Text color="ui.textMuted" fontSize="xs">ms</Text>
+            </Box>
+          )}
+          {activity != null && (
+            <Box
+              flex={1}
+              bg="rgba(255,255,255,0.04)"
+              p={3}
+              borderRadius="6px"
+              border="1px solid"
+              borderColor="rgba(255,255,255,0.08)"
+              textAlign="center"
+            >
+              <Text color="ui.textMuted" fontSize="xs" letterSpacing="0.08em" mb={1}>ACTIVIDAD</Text>
+              <Text color="ui.text" fontSize="xl" fontWeight="700">{Math.round(activity)}</Text>
+              <Text color="ui.textMuted" fontSize="xs">pasos</Text>
+            </Box>
+          )}
+        </HStack>
+
+        <Text color="#22c55e" fontSize="xs" letterSpacing="0.08em" fontWeight="700">
+          ✓ BIOMÉTRICOS INTEGRADOS AL ANÁLISIS DE ESTRÉS
+        </Text>
+      </VStack>
+    </Box>
+  );
+}
+
+// ─── BiometricQRCard ──────────────────────────────────────────────────────────
+// Each mount generates a fresh UUID → embedded in QR → Android app echoes it
+// back in the POST body → backend stores in _biometric_sessions → polling picks it up.
 function BiometricQRCard() {
+  // Stable UUID for this QR session; re-generated only if the component remounts
+  const [sessionId] = useState(() =>
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2) + Date.now().toString(36)
+  );
   const [qrUrl, setQrUrl] = useState("");
+  const [biometrics, setBiometrics] = useState(null);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
 
   useEffect(() => {
     const token = getToken();
     if (token && apiUrl) {
-      const endpoint = `${apiUrl}/biometrics`;
+      // session_id goes inside the endpoint URL so the Android app
+      // forwards it automatically as a query param when it POSTs to that URL
+      const endpoint = `${apiUrl}/biometrics?session_id=${sessionId}`;
       setQrUrl(
         `yachaflex://connect?endpoint=${encodeURIComponent(endpoint)}&token=${encodeURIComponent(token)}`
       );
     }
-  }, [apiUrl]);
+  }, [apiUrl, sessionId]);
+
+  // Poll every 2s until THIS session's biometrics arrive.
+  // clearInterval is called immediately inside the callback (not waiting for re-render)
+  // so no stray GET requests compete with the check-in POST.
+  useEffect(() => {
+    const poll = setInterval(async () => {
+      try {
+        const { data } = await getBiometricsStatus(sessionId);
+        if (data.received) {
+          clearInterval(poll); // stop NOW, before React re-renders
+          setBiometrics(data);
+        }
+      } catch (_) {
+        // ignore network errors during polling
+      }
+    }, 2000);
+    return () => clearInterval(poll);
+  }, [sessionId]);
 
   if (!qrUrl) return null;
+
+  if (biometrics) return <BiometricsDisplay data={biometrics} />;
 
   return (
     <Box
@@ -83,6 +224,26 @@ function BiometricQRCard() {
             Luego pulsa <Text as="span" fontWeight="700">Send</Text> en el app para combinar ambos datos.
           </Text>
         </VStack>
+
+        {/* Polling indicator */}
+        <HStack spacing={2} mt={1}>
+          <Box
+            w="7px"
+            h="7px"
+            borderRadius="full"
+            bg="#ff6600"
+            sx={{
+              animation: "yfPulse 1.2s ease-in-out infinite",
+              "@keyframes yfPulse": {
+                "0%, 100%": { opacity: 1, transform: "scale(1)" },
+                "50%": { opacity: 0.3, transform: "scale(0.7)" },
+              },
+            }}
+          />
+          <Text color="ui.textMuted" fontSize="xs" letterSpacing="0.08em">
+            ESPERANDO DATOS DEL SMARTWATCH...
+          </Text>
+        </HStack>
       </VStack>
     </Box>
   );

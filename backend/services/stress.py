@@ -20,7 +20,6 @@ def _checkin_to_stress(bienestar: float, sueno: float, concentracion: float) -> 
 
 def _biometrics_to_stress(
     heart_rate: float | None,
-    hrv: float | None,
     activity: float | None,
 ) -> float | None:
     """Convert biometric values to a stress score (0-100). Returns None if no data."""
@@ -30,11 +29,6 @@ def _biometrics_to_stress(
         # HR: 50 bpm → 0 stress, 120+ bpm → 100 stress
         hr_score = max(0.0, min(100.0, (heart_rate - 50) / 70 * 100))
         scores.append(hr_score)
-
-    if hrv is not None:
-        # HRV: 80ms+ → 0 stress, 10ms or less → 100 stress
-        hrv_score = max(0.0, min(100.0, (80 - hrv) / 70 * 100))
-        scores.append(hrv_score)
 
     if activity is not None:
         # Very low activity can indicate fatigue/high stress
@@ -53,14 +47,16 @@ def calculate_stress(
     sueno: float,
     concentracion: float,
     heart_rate: float | None = None,
-    hrv: float | None = None,
+    hrv: float | None = None,  # accepted for API compatibility, ignored in calculation
+    _hrv: float | None = None,  # backwards compat with internal callers
     activity: float | None = None,
 ) -> tuple[float, str]:
     """
     Returns (stress_score, stress_level).
+    HRV is accepted but not used in the biometrics calculation.
     """
     checkin_score = _checkin_to_stress(bienestar, sueno, concentracion)
-    bio_score = _biometrics_to_stress(heart_rate, hrv, activity)
+    bio_score = _biometrics_to_stress(heart_rate, activity)
 
     if bio_score is not None:
         # 60% check-in, 40% biometrics

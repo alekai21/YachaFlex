@@ -114,6 +114,7 @@ class BiometricsRequest(BaseModel):
     heart_rate: Optional[float] = None   # bpm
     hrv: Optional[float] = None          # ms
     activity: Optional[float] = None     # steps or activity level
+    session_id: Optional[str] = None     # UUID from QR code, used to detect arrival
 
 
 class BiometricsResponse(BaseModel):
