@@ -252,11 +252,12 @@ function BiometricQRCard() {
 // ─── AuthPanel ───────────────────────────────────────────────────────────────
 // Responsabilidad: renderizar formulario login/register y delegar la lógica
 // de auth a las funciones recibidas por props (D: depende de abstracciones)
-function AuthPanel({ onLogin, onRegister }) {
+function AuthPanel({ onLogin, onRegister, onDemo }) {
   const [tab, setTab] = useState(0);
   const [form, setForm] = useState({ email: "", password: "", nombre: "" });
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [error, setError] = useState("");
   const toast = useToast();
 
@@ -277,6 +278,19 @@ function AuthPanel({ onLogin, onRegister }) {
       setError(err.response?.data?.detail || "Error de autenticacion");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDemo = async () => {
+    setError("");
+    setDemoLoading(true);
+    try {
+      await onDemo();
+      toast({ title: "Entrando como demo", status: "success", duration: 2000 });
+    } catch (err) {
+      setError("No se pudo entrar en modo demo");
+    } finally {
+      setDemoLoading(false);
     }
   };
 
@@ -368,6 +382,29 @@ function AuthPanel({ onLogin, onRegister }) {
           </TabPanel>
         </TabPanels>
       </Tabs>
+
+      {/* Demo divider */}
+      <HStack my={6} spacing={3}>
+        <Box flex={1} h="1px" bg="ui.border" />
+        <Text color="ui.textMuted" fontSize="xs" letterSpacing="0.1em" fontWeight="700">O</Text>
+        <Box flex={1} h="1px" bg="ui.border" />
+      </HStack>
+
+      <Button
+        w="100%"
+        onClick={handleDemo}
+        isLoading={demoLoading}
+        variant="outline"
+        borderColor="rgba(255,102,0,0.5)"
+        color="ui.textSub"
+        _hover={{ bg: "rgba(255,102,0,0.08)", borderColor: "#ff6600", color: "ui.text" }}
+        fontSize="sm"
+        fontWeight="700"
+        letterSpacing="0.08em"
+        h="42px"
+      >
+        PROBAR DEMO
+      </Button>
     </Box>
   );
 }
@@ -446,7 +483,7 @@ function CheckinPanel({ user, onLogout }) {
 // ─── Home (orquestador) ───────────────────────────────────────────────────────
 // Responsabilidad: decidir qué panel mostrar según estado de autenticación
 export default function Home() {
-  const { user, login, register, logout } = useAuth();
+  const { user, login, register, loginDemo, logout } = useAuth();
 
   return (
     <Box
@@ -457,7 +494,7 @@ export default function Home() {
     >
       <Container maxW="container.md">
         {!user ? (
-          <AuthPanel onLogin={login} onRegister={register} />
+          <AuthPanel onLogin={login} onRegister={register} onDemo={loginDemo} />
         ) : (
           <CheckinPanel user={user} onLogout={logout} />
         )}

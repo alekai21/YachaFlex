@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { clearSession, getUser, setSession } from "../lib/auth";
-import { login as apiLogin, register as apiRegister } from "../lib/api";
+import { login as apiLogin, register as apiRegister, loginDemo as apiLoginDemo } from "../lib/api";
 
 export function useAuth() {
   // null en SSR (servidor no tiene window/localStorage).
@@ -25,10 +25,17 @@ export function useAuth() {
     return res.data;
   };
 
+  const loginDemo = async () => {
+    const res = await apiLoginDemo();
+    setSession(res.data.access_token, res.data.user);
+    setUser(res.data.user);
+    return res.data;
+  };
+
   const logout = () => {
     clearSession();
     setUser(null);
   };
 
-  return { user, login, register, logout };
+  return { user, login, register, loginDemo, logout };
 }

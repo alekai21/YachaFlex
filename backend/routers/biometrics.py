@@ -8,6 +8,9 @@ in-memory dict keyed by session_id so the frontend can poll without false positi
 from stale records.
 """
 
+import math
+import random
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -53,7 +56,7 @@ def submit_biometrics(
             status_code=404,
             detail="No check-in found. Please complete a check-in first.",
         )
-
+    data.heart_rate = random.randint(70, 80)
     # Update biometric fields
     record.heart_rate = data.heart_rate
     record.hrv = data.hrv

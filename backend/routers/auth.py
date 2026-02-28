@@ -78,6 +78,33 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
     )
 
 
+DEMO_EMAIL = "demo@yachaflex.com"
+DEMO_PASSWORD = "demo1234"
+DEMO_NAME = "Usuario Demo"
+
+
+@router.post("/demo", response_model=Token)
+def demo_login(db: Session = Depends(get_db)):
+    """Crea (si no existe) y autentica al usuario demo."""
+    user = db.query(User).filter(User.email == DEMO_EMAIL).first()
+    if not user:
+        user = User(
+            email=DEMO_EMAIL,
+            nombre=DEMO_NAME,
+            hashed_password=hash_password(DEMO_PASSWORD),
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    token = create_access_token({"sub": str(user.id)})
+    return Token(
+        access_token=token,
+        token_type="bearer",
+        user=UserResponse.model_validate(user),
+    )
+
+
 @router.post("/login", response_model=Token)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
