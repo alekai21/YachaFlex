@@ -33,4 +33,7 @@ export const uploadPdfContent = (formData) =>
 // History
 export const getHistory = (limit = 30) => api.get(`/history?limit=${limit}`);
 
+// Health
+export const checkHealth = () => api.get("/health");
+
 export default api;

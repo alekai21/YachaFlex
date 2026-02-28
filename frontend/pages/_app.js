@@ -9,21 +9,21 @@ const theme = extendTheme({
   },
   semanticTokens: {
     colors: {
-      "ui.surface":      { default: "#f5f5f0", _dark: "#0a0a0a" },
-      "ui.card":         { default: "#ffffff",  _dark: "#111111" },
-      "ui.deep":         { default: "#f8f8f3",  _dark: "#0d0d0d" },
-      "ui.elevated":     { default: "#f0f0eb",  _dark: "#1a1a1a" },
-      "ui.text":         { default: "#1a1a1a",  _dark: "#c0c0c0" },
-      "ui.textSub":      { default: "#555555",  _dark: "#8a8a8a" },
-      "ui.textMuted":    { default: "#888888",  _dark: "#6d6b6b" },
-      "ui.textLight":    { default: "#666666",  _dark: "#9c9c9c" },
-      "ui.textBright":   { default: "#333333",  _dark: "#dddddd" },
-      "ui.border":       { default: "#d0d0d0",  _dark: "#484848" },
-      "ui.borderMid":    { default: "#bbbbbb",  _dark: "#555555" },
-      "ui.borderLight":  { default: "#eeeeee",  _dark: "#2a2a2a" },
-      "ui.disabledBg":   { default: "#e0e0e0",  _dark: "#1e1e1e" },
-      "ui.disabledText": { default: "#aaaaaa",  _dark: "#3a3a3a" },
-      "ui.errorBg":      { default: "#fff0f3",  _dark: "#1a0810" },
+      "ui.surface": { default: "#f5f5f0", _dark: "#0a0a0a" },
+      "ui.card": { default: "#ffffff", _dark: "#111111" },
+      "ui.deep": { default: "#f8f8f3", _dark: "#0d0d0d" },
+      "ui.elevated": { default: "#f0f0eb", _dark: "#1a1a1a" },
+      "ui.text": { default: "#1a1a1a", _dark: "#c0c0c0" },
+      "ui.textSub": { default: "#555555", _dark: "#8a8a8a" },
+      "ui.textMuted": { default: "#888888", _dark: "#6d6b6b" },
+      "ui.textLight": { default: "#666666", _dark: "#9c9c9c" },
+      "ui.textBright": { default: "#333333", _dark: "#dddddd" },
+      "ui.border": { default: "#d0d0d0", _dark: "#484848" },
+      "ui.borderMid": { default: "#bbbbbb", _dark: "#555555" },
+      "ui.borderLight": { default: "#eeeeee", _dark: "#2a2a2a" },
+      "ui.disabledBg": { default: "#e0e0e0", _dark: "#1e1e1e" },
+      "ui.disabledText": { default: "#aaaaaa", _dark: "#3a3a3a" },
+      "ui.errorBg": { default: "#fff0f3", _dark: "#1a0810" },
     },
   },
   styles: {
@@ -94,6 +94,8 @@ const theme = extendTheme({
   },
 });
 
+import HealthBadge from "../components/HealthBadge";
+
 export default function App({ Component, pageProps }) {
   return (
     <ChakraProvider theme={theme}>
@@ -116,6 +118,7 @@ export default function App({ Component, pageProps }) {
       <Box position="relative" zIndex={1} minH="100vh">
         <ThemeToggle />
         <Component {...pageProps} />
+        <HealthBadge />
       </Box>
     </ChakraProvider>
   );
