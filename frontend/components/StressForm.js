@@ -51,12 +51,12 @@ function StressSlider({ label, lowLabel, highLabel, value, onChange }) {
         onMouseLeave={() => setShowTooltip(false)}
       >
         {[1, 2, 3, 4, 5].map((v) => (
-          <SliderMark key={v} value={v} mt={3} ml="-2.5" fontSize="xs" color="#4a4a4a" fontFamily="monospace">
+          <SliderMark key={v} value={v} mt={3} ml="-2.5" fontSize="xs" color="#6d6b6b" fontFamily="monospace">
             {v}
           </SliderMark>
         ))}
         <SliderTrack bg="#484848" h="4px" borderRadius="full">
-          <SliderFilledTrack bg="linear-gradient(90deg, #5a5a5a, #8a8a8a)" />
+          <SliderFilledTrack bg="linear-gradient(90deg, #9c9c9c, #8a8a8a)" />
         </SliderTrack>
         <Tooltip
           hasArrow
@@ -78,8 +78,8 @@ function StressSlider({ label, lowLabel, highLabel, value, onChange }) {
         </Tooltip>
       </Slider>
       <Box display="flex" justifyContent="space-between" mt={6}>
-        <Text fontSize="sm" color="#4a4a4a" letterSpacing="0.03em">{lowLabel}</Text>
-        <Text fontSize="sm" color="#4a4a4a" letterSpacing="0.03em">{highLabel}</Text>
+        <Text fontSize="sm" color="#6d6b6b" letterSpacing="0.03em">{lowLabel}</Text>
+        <Text fontSize="sm" color="#6d6b6b" letterSpacing="0.03em">{highLabel}</Text>
       </Box>
     </Box>
   );

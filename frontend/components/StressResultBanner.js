@@ -35,7 +35,7 @@ export default function StressResultBanner({ score, level }) {
         </Box>
 
         <Box>
-          <Text color="#4a4a4a" fontSize="xs" mb={2} letterSpacing="0.12em" textTransform="uppercase">
+          <Text color="#dddddd" fontSize="xs" mb={2} letterSpacing="0.12em" textTransform="uppercase">
             Nivel de estres actual
           </Text>
           <HStack spacing={3} mb={3}>
@@ -50,7 +50,7 @@ export default function StressResultBanner({ score, level }) {
               {STRESS_LABELS[level]}
             </Text>
           </HStack>
-          <Text color="#5a5a5a" fontSize="md" lineHeight="1.7" maxW="400px">
+          <Text color="#9c9c9c" fontSize="md" lineHeight="1.7" maxW="400px">
             {STRESS_DESCRIPTIONS[level]}
           </Text>
         </Box>

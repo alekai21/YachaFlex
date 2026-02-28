@@ -24,7 +24,7 @@ export default function Quiz({ questions }) {
           >
             <Stack spacing={2}>
               {q.options.map((opt, j) => {
-                let optColor = "#5a5a5a";
+                let optColor = "#9c9c9c";
                 if (submitted) {
                   if (j === q.correct_index) optColor = "#00e87a";
                   else if (String(answers[i]) === String(j)) optColor = "#ff2244";

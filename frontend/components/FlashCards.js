@@ -25,7 +25,7 @@ export default function FlashCards({ cards }) {
           _hover={{ borderColor: "#7a7a7a", boxShadow: "0 0 12px rgba(138,138,138,0.12)" }}
         >
           <Box>
-            <Text fontSize="xs" color={flipped[i] ? "#8a8a8a" : "#4a4a4a"} letterSpacing="0.08em" mb={2} textTransform="uppercase">
+            <Text fontSize="xs" color={flipped[i] ? "#8a8a8a" : "#6d6b6b"} letterSpacing="0.08em" mb={2} textTransform="uppercase">
               {flipped[i] ? "Respuesta" : "Pregunta"}
             </Text>
             <Text fontWeight={flipped[i] ? "400" : "600"} color={flipped[i] ? "#c0c0c0" : "#e0e0e0"} fontSize="sm" lineHeight="1.5">

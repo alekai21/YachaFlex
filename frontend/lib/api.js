@@ -25,6 +25,10 @@ export const submitBiometrics = (data) => api.post("/biometrics", data);
 
 // Generate content
 export const generateContent = (data) => api.post("/generate", data);
+export const uploadPdfContent = (formData) =>
+  api.post("/generate/pdf", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 
 // History
 export const getHistory = (limit = 30) => api.get(`/history?limit=${limit}`);

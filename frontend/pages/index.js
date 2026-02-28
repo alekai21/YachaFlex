@@ -57,7 +57,7 @@ function AuthPanel({ onLogin, onRegister }) {
 
   const tabProps = {
     _selected: { color: "#c0c0c0", borderBottomColor: "#8a8a8a" },
-    color: "#4a4a4a",
+    color: "#6d6b6b",
     fontSize: "sm",
     letterSpacing: "0.08em",
     fontWeight: "700",
@@ -173,7 +173,7 @@ function CheckinPanel({ user, onLogout }) {
       <HStack justify="space-between" mb={8}>
         <Logo size="sm" />
         <HStack spacing={4}>
-          <Text color="#4a4a4a" fontSize="sm" letterSpacing="0.05em" textTransform="uppercase">
+          <Text color="#ff6600f6" fontWeight="bold" fontSize="sm" letterSpacing="0.05em" textTransform="uppercase">
             {user.nombre}
           </Text>
           <Button
@@ -204,7 +204,7 @@ function CheckinPanel({ user, onLogout }) {
           <Box w="3px" h="22px" bg="#ff6600" borderRadius="full" sx={{ boxShadow: "0 0 10px rgba(255,102,0,0.7)" }} />
           <Text fontWeight="700" fontSize="md" color="#c0c0c0" letterSpacing="0.1em">CHECK-IN DE BIENESTAR</Text>
         </HStack>
-        <Text color="#4a4a4a" mb={8} fontSize="md" letterSpacing="0.02em" pl={3}>
+        <Text color="#6d6b6b" mb={8} fontSize="md" letterSpacing="0.02em" pl={3}>
           Responde estas 3 preguntas para detectar tu nivel de estres y recibir contenido adaptado.
         </Text>
         <ErrorAlert message={error} />

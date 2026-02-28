@@ -23,13 +23,13 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 def _build_messages(text: str, stress_level: str) -> list:
     if stress_level == "low":
         instructions = (
-            "The student is calm and focused. Write a DETAILED summary (200-300 words), "
-            "exactly 5 flashcards, and exactly 5 quiz questions with 4 options each."
+            "The student is calm and focused. Write a DETAILED summary (500-700 words), "
+            "exactly 10 flashcards, and exactly 7 quiz questions with 4 options each."
         )
     elif stress_level == "medium":
         instructions = (
-            "The student has moderate stress. Write a SIMPLIFIED summary (100-150 words), "
-            "exactly 3 flashcards, and exactly 3 quiz questions with 4 options each."
+            "The student has moderate stress. Write a SIMPLIFIED summary (200-350 words), "
+            "exactly 5 flashcards, and exactly 4 quiz questions with 4 options each."
         )
     else:  # high
         instructions = (
@@ -117,7 +117,7 @@ async def generate_content(text: str, stress_level: str) -> dict:
                 "model": GROQ_MODEL,
                 "messages": messages,
                 "temperature": 0.3,
-                "max_tokens": 1500,
+                "max_tokens": 3000,
                 "response_format": {"type": "json_object"},
             },
         )

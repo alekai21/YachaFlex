@@ -12,15 +12,15 @@ export const STRESS_COLORS = {
 };
 
 export const STRESS_BG = {
-  low: "rgba(0,232,122,0.10)",
-  medium: "rgba(255,149,0,0.10)",
-  high: "rgba(255,34,68,0.10)",
+  low: "#00e87a36",
+  medium: "#ff950036",
+  high: "#ff224436",
 };
 
 export const STRESS_BORDER = {
-  low: "rgba(0,232,122,0.4)",
-  medium: "rgba(255,149,0,0.4)",
-  high: "rgba(255,34,68,0.4)",
+  low: "#00e87a66",
+  medium: "#ff950066",
+  high: "#ff224466",
 };
 
 export const STRESS_LABELS = {

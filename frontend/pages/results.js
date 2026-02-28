@@ -74,7 +74,7 @@ export default function Results() {
             {historyLoading ? (
               <VStack py={8} spacing={3}>
                 <Spinner color="#8a8a8a" size="md" />
-                <Text color="#4a4a4a" fontSize="sm" letterSpacing="0.05em">CARGANDO HISTORIAL...</Text>
+                <Text color="#6d6b6b" fontSize="sm" letterSpacing="0.05em">CARGANDO HISTORIAL...</Text>
               </VStack>
             ) : (
               <StressChart records={records} />

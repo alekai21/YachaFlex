@@ -21,7 +21,7 @@ export default function StressChart({ records }) {
   if (!records || records.length === 0) {
     return (
       <Box p={6} textAlign="center">
-        <Text color="#4a4a4a" fontSize="sm" letterSpacing="0.05em">
+        <Text color="#6d6b6b" fontSize="sm" letterSpacing="0.05em">
           SIN HISTORIAL DE ESTRES TODAVIA
         </Text>
       </Box>
@@ -81,7 +81,7 @@ export default function StressChart({ records }) {
     },
     scales: {
       x: {
-        ticks: { color: "#4a4a4a", font: { size: 11, family: "monospace" } },
+        ticks: { color: "#6d6b6b", font: { size: 11, family: "monospace" } },
         grid: { color: "rgba(72,72,72,0.7)" },
         border: { color: "#484848" },
       },
@@ -89,7 +89,7 @@ export default function StressChart({ records }) {
         min: 0,
         max: 100,
         ticks: {
-          color: "#4a4a4a",
+          color: "#6d6b6b",
           font: { size: 11, family: "monospace" },
           callback: (v) => {
             if (v === low) return "BAJO";
