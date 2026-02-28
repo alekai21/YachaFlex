@@ -16,7 +16,7 @@ export default function SectionHeading({ title, accentColor = "orange" }) {
   return (
     <HStack mb={2}>
       <Box w="3px" h="22px" borderRadius="full" bg={accent.bg} sx={{ boxShadow: accent.boxShadow }} />
-      <Heading size="md" color="#c0c0c0" letterSpacing="0.1em" fontWeight="700">
+      <Heading size="md" color="ui.text" letterSpacing="0.1em" fontWeight="700">
         {title}
       </Heading>
     </HStack>

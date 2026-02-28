@@ -38,24 +38,24 @@ function StressSlider({ label, lowLabel, highLabel, value, onChange }) {
 
   return (
     <Box w="100%">
-      <Text fontWeight="600" mb={4} color="#c0c0c0" fontSize="md" letterSpacing="0.03em">
+      <Text fontWeight="600" mb={4} color="ui.text" fontSize="md" letterSpacing="0.03em">
         {label}
       </Text>
       <Slider
         min={1}
-        max={5}
+        max={10}
         step={1}
         value={value}
         onChange={onChange}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
-        {[1, 2, 3, 4, 5].map((v) => (
-          <SliderMark key={v} value={v} mt={3} ml="-2.5" fontSize="xs" color="#6d6b6b" fontFamily="monospace">
+        {[1, 5, 10].map((v) => (
+          <SliderMark key={v} value={v} mt={3} ml="-2.5" fontSize="xs" color="ui.textMuted" fontFamily="monospace">
             {v}
           </SliderMark>
         ))}
-        <SliderTrack bg="#484848" h="4px" borderRadius="full">
+        <SliderTrack bg="ui.border" h="4px" borderRadius="full">
           <SliderFilledTrack bg="linear-gradient(90deg, #9c9c9c, #8a8a8a)" />
         </SliderTrack>
         <Tooltip
@@ -78,15 +78,15 @@ function StressSlider({ label, lowLabel, highLabel, value, onChange }) {
         </Tooltip>
       </Slider>
       <Box display="flex" justifyContent="space-between" mt={6}>
-        <Text fontSize="sm" color="#6d6b6b" letterSpacing="0.03em">{lowLabel}</Text>
-        <Text fontSize="sm" color="#6d6b6b" letterSpacing="0.03em">{highLabel}</Text>
+        <Text fontSize="sm" color="ui.textMuted" letterSpacing="0.03em">{lowLabel}</Text>
+        <Text fontSize="sm" color="ui.textMuted" letterSpacing="0.03em">{highLabel}</Text>
       </Box>
     </Box>
   );
 }
 
 export default function StressForm({ onSubmit, isLoading }) {
-  const [values, setValues] = useState({ bienestar: 3, sueno: 3, concentracion: 3 });
+  const [values, setValues] = useState({ bienestar: 5, sueno: 5, concentracion: 5 });
 
   const handleChange = (key) => (val) => setValues((prev) => ({ ...prev, [key]: val }));
 

@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   HStack,
+  Icon,
   Input,
   InputGroup,
   InputRightElement,
@@ -15,6 +16,7 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import StressForm from "../components/StressForm";
@@ -56,12 +58,12 @@ function AuthPanel({ onLogin, onRegister }) {
   };
 
   const tabProps = {
-    _selected: { color: "#c0c0c0", borderBottomColor: "#8a8a8a" },
-    color: "#6d6b6b",
+    _selected: { color: "ui.text", borderBottomColor: "ui.textSub" },
+    color: "ui.textMuted",
     fontSize: "sm",
     letterSpacing: "0.08em",
     fontWeight: "700",
-    _hover: { color: "#8a8a8a" },
+    _hover: { color: "ui.textSub" },
   };
 
   const PasswordInput = (
@@ -76,18 +78,17 @@ function AuthPanel({ onLogin, onRegister }) {
         fontSize="sm"
         letterSpacing="0.05em"
       />
-      <InputRightElement width="4.5rem">
+      <InputRightElement>
         <Button
           h="1.75rem"
           size="sm"
           onClick={() => setShowPwd((v) => !v)}
           variant="ghost"
-          color="#8a8a8a"
-          fontSize="xs"
-          letterSpacing="0.05em"
-          _hover={{ bg: "#1a1a1a", color: "#c0c0c0" }}
+          color="ui.textSub"
+          _hover={{ bg: "ui.elevated", color: "ui.text" }}
+          aria-label={showPwd ? "Ocultar contraseña" : "Ver contraseña"}
         >
-          {showPwd ? "OCULTAR" : "VER"}
+          <Icon as={showPwd ? ViewOffIcon : ViewIcon} boxSize={4} />
         </Button>
       </InputRightElement>
     </InputGroup>
@@ -99,7 +100,7 @@ function AuthPanel({ onLogin, onRegister }) {
       mx="auto"
       mt={8}
       p={8}
-      bg="#111111"
+      bg="ui.card"
       border="1px solid"
       borderColor="rgba(255,102,0,0.4)"
       borderRadius="8px"
@@ -107,14 +108,14 @@ function AuthPanel({ onLogin, onRegister }) {
     >
       <VStack spacing={1} mb={8}>
         <Logo size="lg" />
-        <Text color="#8a8a8a" fontSize="sm" letterSpacing="0.15em" textTransform="uppercase" mt={1}>
+        <Text color="ui.textSub" fontSize="sm" letterSpacing="0.15em" textTransform="uppercase" mt={1}>
           Aprendizaje Adaptativo por IA
         </Text>
         <Box h="1px" w="200px" mt={2} bg="linear-gradient(90deg, transparent, #ff6600, transparent)" />
       </VStack>
 
       <Tabs isFitted index={tab} onChange={setTab}>
-        <TabList mb={6} borderColor="#484848">
+        <TabList mb={6} borderColor="ui.border">
           <Tab {...tabProps}>INICIAR SESION</Tab>
           <Tab {...tabProps}>REGISTRARSE</Tab>
         </TabList>
@@ -179,10 +180,11 @@ function CheckinPanel({ user, onLogout }) {
           <Button
             size="sm"
             variant="ghost"
-            color="#8a8a8a"
+            color="ui.textSub"
             onClick={onLogout}
-            border="1px solid #555555"
-            _hover={{ bg: "#1a1a1a", borderColor: "#8a8a8a", color: "#c0c0c0" }}
+            border="1px solid"
+            borderColor="ui.borderMid"
+            _hover={{ bg: "ui.elevated", borderColor: "ui.textSub", color: "ui.text" }}
             letterSpacing="0.08em"
             fontSize="xs"
             fontWeight="700"
@@ -193,7 +195,7 @@ function CheckinPanel({ user, onLogout }) {
       </HStack>
 
       <Box
-        bg="#111111"
+        bg="ui.card"
         p={8}
         border="1px solid"
         borderColor="rgba(255,102,0,0.35)"
@@ -202,9 +204,9 @@ function CheckinPanel({ user, onLogout }) {
       >
         <HStack mb={2}>
           <Box w="3px" h="22px" bg="#ff6600" borderRadius="full" sx={{ boxShadow: "0 0 10px rgba(255,102,0,0.7)" }} />
-          <Text fontWeight="700" fontSize="md" color="#c0c0c0" letterSpacing="0.1em">CHECK-IN DE BIENESTAR</Text>
+          <Text fontWeight="700" fontSize="md" color="ui.text" letterSpacing="0.1em">CHECK-IN DE BIENESTAR</Text>
         </HStack>
-        <Text color="#6d6b6b" mb={8} fontSize="md" letterSpacing="0.02em" pl={3}>
+        <Text color="ui.textMuted" mb={8} fontSize="md" letterSpacing="0.02em" pl={3}>
           Responde estas 3 preguntas para detectar tu nivel de estres y recibir contenido adaptado.
         </Text>
         <ErrorAlert message={error} />

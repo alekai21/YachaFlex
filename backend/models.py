@@ -98,9 +98,9 @@ class Token(BaseModel):
 
 
 class CheckinRequest(BaseModel):
-    bienestar: float       # 1-5
-    sueno: float           # 1-5
-    concentracion: float   # 1-5
+    bienestar: float       # 1-10
+    sueno: float           # 1-10
+    concentracion: float   # 1-10
 
 
 class CheckinResponse(BaseModel):

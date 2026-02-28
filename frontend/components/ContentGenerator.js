@@ -38,7 +38,7 @@ export default function ContentGenerator({ recordId }) {
   return (
     <>
       <Box
-        bg="#111111"
+        bg="ui.card"
         p={8}
         border="1px solid"
         borderColor="rgba(255,102,0,0.4)"
@@ -59,7 +59,7 @@ export default function ContentGenerator({ recordId }) {
               border="1px solid"
               borderColor="rgba(255,102,0,0.3)"
               borderRadius="4px"
-              color="#6d6b6b"
+              color="ui.textMuted"
               _selected={{
                 color: "#ff6600",
                 borderColor: "#ff6600",
@@ -77,7 +77,7 @@ export default function ContentGenerator({ recordId }) {
               border="1px solid"
               borderColor="rgba(255,102,0,0.3)"
               borderRadius="4px"
-              color="#6d6b6b"
+              color="ui.textMuted"
               _selected={{
                 color: "#ff6600",
                 borderColor: "#ff6600",
@@ -91,7 +91,7 @@ export default function ContentGenerator({ recordId }) {
           <TabPanels>
             {/* ── Texto ── */}
             <TabPanel p={0}>
-              <Text color="#6d6b6b" mb={5} fontSize="md" letterSpacing="0.02em" pl={3}>
+              <Text color="ui.textMuted" mb={5} fontSize="md" letterSpacing="0.02em" pl={3}>
                 Pega el texto de tu apunte o tema de estudio. La IA lo adaptara a tu nivel de estres actual.
               </Text>
               <Textarea
@@ -115,7 +115,7 @@ export default function ContentGenerator({ recordId }) {
                   GENERAR CONTENIDO
                 </PrimaryButton>
                 {text.trim().length > 0 && text.trim().length < 50 && (
-                  <Text fontSize="xs" color="#6d6b6b" letterSpacing="0.05em">
+                  <Text fontSize="xs" color="ui.textMuted" letterSpacing="0.05em">
                     {text.trim().length}/50 caracteres
                   </Text>
                 )}
@@ -124,7 +124,7 @@ export default function ContentGenerator({ recordId }) {
 
             {/* ── PDF ── */}
             <TabPanel p={0}>
-              <Text color="#6d6b6b" mb={5} fontSize="md" letterSpacing="0.02em" pl={3}>
+              <Text color="ui.textMuted" mb={5} fontSize="md" letterSpacing="0.02em" pl={3}>
                 Sube un PDF con tu material de estudio. La IA extraera el texto y lo adaptara a tu nivel de estres.
               </Text>
               <Box
@@ -151,16 +151,16 @@ export default function ContentGenerator({ recordId }) {
                     <Text color="#ff6600" fontSize="sm" fontWeight="bold" letterSpacing="0.05em">
                       {pdfFile.name}
                     </Text>
-                    <Text color="#6d6b6b" fontSize="xs" mt={1}>
+                    <Text color="ui.textMuted" fontSize="xs" mt={1}>
                       {(pdfFile.size / 1024).toFixed(0)} KB — click para cambiar
                     </Text>
                   </>
                 ) : (
                   <>
-                    <Text color="#555555" fontSize="sm" letterSpacing="0.05em">
+                    <Text color="ui.textSub" fontSize="sm" letterSpacing="0.05em">
                       CLICK PARA SELECCIONAR PDF
                     </Text>
-                    <Text color="#3a3a3a" fontSize="xs" mt={1}>
+                    <Text color="ui.disabledText" fontSize="xs" mt={1}>
                       Solo archivos .pdf
                     </Text>
                   </>
@@ -181,7 +181,7 @@ export default function ContentGenerator({ recordId }) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    color="#6d6b6b"
+                    color="ui.textMuted"
                     fontSize="xs"
                     letterSpacing="0.05em"
                     onClick={() => {
@@ -200,9 +200,10 @@ export default function ContentGenerator({ recordId }) {
 
       {content && (
         <Box
-          bg="#111111"
+          bg="ui.card"
           p={8}
-          border="1px solid #555555"
+          border="1px solid"
+          borderColor="ui.borderMid"
           borderRadius="8px"
           mb={8}
           boxShadow="0 0 40px rgba(0,0,0,0.5)"

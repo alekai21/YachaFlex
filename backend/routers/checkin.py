@@ -16,8 +16,8 @@ def submit_checkin(
 ):
     # Validate ranges
     for field, value in [("bienestar", data.bienestar), ("sueno", data.sueno), ("concentracion", data.concentracion)]:
-        if not (1 <= value <= 5):
-            raise HTTPException(status_code=422, detail=f"{field} must be between 1 and 5")
+        if not (1 <= value <= 10):
+            raise HTTPException(status_code=422, detail=f"{field} must be between 1 and 10")
 
     checkin_score, _ = calculate_stress(data.bienestar, data.sueno, data.concentracion)
     stress_score, stress_level = calculate_stress(data.bienestar, data.sueno, data.concentracion)

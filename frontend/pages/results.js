@@ -40,10 +40,11 @@ export default function Results() {
           <Button
             size="sm"
             variant="ghost"
-            color="#8a8a8a"
+            color="ui.textSub"
             onClick={() => router.push("/")}
-            border="1px solid #555555"
-            _hover={{ bg: "#1a1a1a", borderColor: "#8a8a8a", color: "#c0c0c0" }}
+            border="1px solid"
+            borderColor="ui.borderMid"
+            _hover={{ bg: "ui.elevated", borderColor: "ui.textSub", color: "ui.text" }}
             letterSpacing="0.08em"
             fontSize="xs"
             fontWeight="700"
@@ -58,11 +59,11 @@ export default function Results() {
         {/* Generador de contenido educativo */}
         <ContentGenerator recordId={record_id} />
 
-        <Divider borderColor="#484848" my={8} />
+        <Divider borderColor="ui.border" my={8} />
 
         {/* Historial de estrés */}
         <Box
-          bg="#111111"
+          bg="ui.card"
           p={8}
           border="1px solid"
           borderColor="rgba(255,102,0,0.35)"
@@ -73,8 +74,8 @@ export default function Results() {
           <Box mt={6}>
             {historyLoading ? (
               <VStack py={8} spacing={3}>
-                <Spinner color="#8a8a8a" size="md" />
-                <Text color="#6d6b6b" fontSize="sm" letterSpacing="0.05em">CARGANDO HISTORIAL...</Text>
+                <Spinner color="ui.textSub" size="md" />
+                <Text color="ui.textMuted" fontSize="sm" letterSpacing="0.05em">CARGANDO HISTORIAL...</Text>
               </VStack>
             ) : (
               <StressChart records={records} />

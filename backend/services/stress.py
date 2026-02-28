@@ -2,7 +2,7 @@
 Stress scoring algorithm.
 
 Inputs:
-  - Check-in (bienestar, sueno, concentracion) – scale 1-5 each
+  - Check-in (bienestar, sueno, concentracion) – scale 1-10 each
   - Biometrics (heart_rate bpm, hrv ms, activity steps) – optional
 
 Output:
@@ -12,10 +12,10 @@ Output:
 
 
 def _checkin_to_stress(bienestar: float, sueno: float, concentracion: float) -> float:
-    """Convert check-in answers (1-5) to a stress score (0-100)."""
-    avg = (bienestar + sueno + concentracion) / 3  # 1-5
-    # Invert: 1 (very bad) → 100 (high stress), 5 (very good) → 0 (low stress)
-    return round((5 - avg) / 4 * 100, 2)
+    """Convert check-in answers (1-10) to a stress score (0-100)."""
+    avg = (bienestar + sueno + concentracion) / 3  # 1-10
+    # Invert: 1 (very bad) → 100 (high stress), 10 (very good) → 0 (low stress)
+    return round((10 - avg) / 9 * 100, 2)
 
 
 def _biometrics_to_stress(

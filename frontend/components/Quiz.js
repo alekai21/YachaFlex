@@ -1,10 +1,12 @@
-import { Box, HStack, Radio, RadioGroup, Stack, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Radio, RadioGroup, Stack, Text, VStack, useColorModeValue } from "@chakra-ui/react";
 import { useState } from "react";
 import PrimaryButton from "./ui/PrimaryButton";
 
 export default function Quiz({ questions }) {
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const radioBorder = useColorModeValue("#bbbbbb", "#555555");
+  const radioBg = useColorModeValue("#f8f8f3", "#0d0d0d");
 
   const score = submitted
     ? questions.filter((q, i) => String(answers[i]) === String(q.correct_index)).length
@@ -14,7 +16,7 @@ export default function Quiz({ questions }) {
     <VStack align="start" spacing={6}>
       {questions.map((q, i) => (
         <Box key={i} w="100%">
-          <Text fontWeight="600" mb={3} color="#c0c0c0" fontSize="md" letterSpacing="0.02em">
+          <Text fontWeight="600" mb={3} color="ui.text" fontSize="md" letterSpacing="0.02em">
             <Text as="span" color="#ff6600" fontFamily="monospace" mr={2}>{i + 1}.</Text>
             {q.question}
           </Text>
@@ -24,7 +26,7 @@ export default function Quiz({ questions }) {
           >
             <Stack spacing={2}>
               {q.options.map((opt, j) => {
-                let optColor = "#9c9c9c";
+                let optColor = "ui.textLight";
                 if (submitted) {
                   if (j === q.correct_index) optColor = "#00e87a";
                   else if (String(answers[i]) === String(j)) optColor = "#ff2244";
@@ -35,8 +37,8 @@ export default function Quiz({ questions }) {
                     value={String(j)}
                     sx={{
                       "& .chakra-radio__control": {
-                        borderColor: "#555555",
-                        bg: "#0d0d0d",
+                        borderColor: radioBorder,
+                        bg: radioBg,
                         _checked: { bg: "#ff6600", borderColor: "#ff6600" },
                       },
                     }}

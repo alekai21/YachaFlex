@@ -1,12 +1,13 @@
-import { Box, CircularProgress, CircularProgressLabel, HStack, Stack, Text } from "@chakra-ui/react";
-import { STRESS_BG, STRESS_BORDER, STRESS_COLORS, STRESS_DESCRIPTIONS, STRESS_LABELS } from "../lib/constants";
+import { Box, CircularProgress, CircularProgressLabel, HStack, Stack, Text, useColorModeValue } from "@chakra-ui/react";
+import { STRESS_BG_DARK, STRESS_BG_LIGHT, STRESS_BORDER, STRESS_COLORS, STRESS_DESCRIPTIONS, STRESS_LABELS } from "../lib/constants";
 
 export default function StressResultBanner({ score, level }) {
-  const color = STRESS_COLORS[level] ?? STRESS_COLORS.medium;
+  const color   = STRESS_COLORS[level] ?? STRESS_COLORS.medium;
+  const stressBg = useColorModeValue(STRESS_BG_LIGHT, STRESS_BG_DARK);
 
   return (
     <Box
-      bg={STRESS_BG[level]}
+      bg={stressBg[level]}
       border="1px solid"
       borderColor={STRESS_BORDER[level]}
       borderRadius="8px"
@@ -18,7 +19,7 @@ export default function StressResultBanner({ score, level }) {
           <CircularProgress
             value={score}
             color={color}
-            trackColor="rgba(255,255,255,0.04)"
+            trackColor="rgba(255,255,255,0.21)"
             size="130px"
             thickness="8px"
           >
@@ -35,7 +36,7 @@ export default function StressResultBanner({ score, level }) {
         </Box>
 
         <Box>
-          <Text color="#dddddd" fontSize="xs" mb={2} letterSpacing="0.12em" textTransform="uppercase">
+          <Text color="ui.textBright" fontSize="xs" mb={2} letterSpacing="0.12em" textTransform="uppercase">
             Nivel de estres actual
           </Text>
           <HStack spacing={3} mb={3}>
@@ -50,7 +51,7 @@ export default function StressResultBanner({ score, level }) {
               {STRESS_LABELS[level]}
             </Text>
           </HStack>
-          <Text color="#9c9c9c" fontSize="md" lineHeight="1.7" maxW="400px">
+          <Text color="ui.textLight" fontSize="md" lineHeight="1.7" maxW="400px">
             {STRESS_DESCRIPTIONS[level]}
           </Text>
         </Box>

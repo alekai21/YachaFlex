@@ -24,7 +24,7 @@ def _build_messages(text: str, stress_level: str) -> list:
     if stress_level == "low":
         instructions = (
             "The student is calm and focused. Write a DETAILED summary (500-700 words), "
-            "exactly 10 flashcards, and exactly 7 quiz questions with 4 options each."
+            "exactly 10 flashcards, and exactly 7 quiz questions with 5 options each."
         )
     elif stress_level == "medium":
         instructions = (
@@ -34,7 +34,7 @@ def _build_messages(text: str, stress_level: str) -> list:
     else:  # high
         instructions = (
             "The student is highly stressed. Write a VERY SHORT micro-summary (50-80 words), "
-            "exactly 3 simple flashcards, and exactly 2 quiz questions with 4 options each."
+            "exactly 3 simple flashcards, and exactly 2 quiz questions with 3 options each."
         )
 
     return [

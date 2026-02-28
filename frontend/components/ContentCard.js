@@ -17,22 +17,24 @@ function AccordionSection({ label, borderExpanded, children }) {
   return (
     <AccordionItem border="none" mb={2}>
       <AccordionButton
-        bg="#0d0d0d"
-        border="1px solid #555555"
+        bg="ui.deep"
+        border="1px solid"
+        borderColor="ui.borderMid"
         borderRadius="6px"
-        _hover={{ bg: "#1a1a1a", borderColor: "#7a7a7a" }}
-        _expanded={{ borderColor: borderExpanded ?? "#9c9c9c", borderBottomRadius: 0 }}
+        _hover={{ bg: "ui.elevated", borderColor: "ui.textSub" }}
+        _expanded={{ borderColor: borderExpanded ?? "ui.textSub", borderBottomRadius: 0 }}
         py={3}
         px={4}
       >
-        <Box flex="1" textAlign="left" fontWeight="700" color="#c0c0c0" fontSize="md" letterSpacing="0.08em">
+        <Box flex="1" textAlign="left" fontWeight="700" color="ui.text" fontSize="md" letterSpacing="0.08em">
           {label}
         </Box>
-        <AccordionIcon color="#6d6b6b" />
+        <AccordionIcon color="ui.textMuted" />
       </AccordionButton>
       <AccordionPanel
-        bg="#0d0d0d"
-        border="1px solid #484848"
+        bg="ui.deep"
+        border="1px solid"
+        borderColor="ui.border"
         borderTop="none"
         borderBottomRadius="6px"
         pt={4}
@@ -71,15 +73,15 @@ export default function ContentCard({ data }) {
       </HStack>
 
       <Accordion defaultIndex={[0]} allowMultiple>
-        <AccordionSection label="RESUMEN" borderExpanded="#9c9c9c">
-          <Text whiteSpace="pre-wrap" color="#8a8a8a" lineHeight="1.9" fontSize="md">
+        <AccordionSection label="RESUMEN" borderExpanded="ui.textSub">
+          <Text whiteSpace="pre-wrap" color="ui.textSub" lineHeight="1.9" fontSize="md">
             {summary}
           </Text>
         </AccordionSection>
 
         {flashcards?.length > 0 && (
           <AccordionSection
-            label={<>FLASHCARDS <Text as="span" color="#6d6b6b" fontWeight="400" ml={2} fontSize="xs">({flashcards.length}) — clic para revelar</Text></>}
+            label={<>FLASHCARDS <Text as="span" color="ui.textMuted" fontWeight="400" ml={2} fontSize="xs">({flashcards.length}) — clic para revelar</Text></>}
             borderExpanded="rgba(255,102,0,0.5)"
           >
             <FlashCards cards={flashcards} />
@@ -88,7 +90,7 @@ export default function ContentCard({ data }) {
 
         {quiz?.length > 0 && (
           <AccordionSection
-            label={<>QUIZ <Text as="span" color="#6d6b6b" fontWeight="400" ml={2} fontSize="xs">({quiz.length} preguntas)</Text></>}
+            label={<>QUIZ <Text as="span" color="ui.textMuted" fontWeight="400" ml={2} fontSize="xs">({quiz.length} preguntas)</Text></>}
             borderExpanded="rgba(255,102,0,0.5)"
           >
             <Quiz questions={quiz} />

@@ -11,10 +11,16 @@ export const STRESS_COLORS = {
   high: "#ff2244",
 };
 
-export const STRESS_BG = {
+export const STRESS_BG_DARK = {
   low: "#00e87a36",
   medium: "#ff950036",
   high: "#ff224436",
+};
+
+export const STRESS_BG_LIGHT = {
+  low: "#7affc1bf",
+  medium: "#ffc17abf",
+  high: "#ff7ac1bf",
 };
 
 export const STRESS_BORDER = {

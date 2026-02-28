@@ -14,7 +14,7 @@ export default function PrimaryButton({ children, isLoading, loadingText, isDisa
       bg="#ff6600"
       color="white"
       _hover={{ bg: "#ff8800", boxShadow: "0 0 24px rgba(255,102,0,0.5)" }}
-      _disabled={{ bg: "#1e1e1e", color: "#3a3a3a", cursor: "not-allowed", boxShadow: "none" }}
+      _disabled={{ bg: "ui.disabledBg", color: "ui.disabledText", cursor: "not-allowed", boxShadow: "none" }}
       letterSpacing="0.1em"
       fontWeight="700"
       fontSize="sm"
