@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
 from routers import auth, checkin, biometrics, generate, history
@@ -34,6 +34,14 @@ def root():
     return {"status": "ok", "message": "YachaFlex API running"}
 
 
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from database import get_db
+
 @app.get("/health")
-def health():
-    return {"status": "healthy"}
+def health(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "healthy", "db": "connected"}
+    except Exception as e:
+        return {"status": "unhealthy", "db": "disconnected", "error": str(e)}
